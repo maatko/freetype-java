@@ -3,9 +3,11 @@ package me.mat.freetype.font;
 import lombok.Getter;
 import me.mat.freetype.MemoryUtil;
 import me.mat.freetype.NativeImplementation;
+import me.mat.freetype.bitmap.BitmapSize;
 import me.mat.freetype.glyph.GlyphSlot;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class FontFace extends NativeImplementation {
 
@@ -322,7 +324,36 @@ public class FontFace extends NativeImplementation {
         return FT_Done_Face(address);
     }
 
-    //////////////////////////////////////////////////////
+    @Override
+    public String toString() {
+        return "FontFace {\n" +
+                "\tnum_faces = " + getNumberOfFaces() + "\n" +
+                "\tface_index = " + getFaceIndex() + "\n" +
+                "\tface_flags = " + getFaceFlags() + "\n" +
+                "\tstyle_flags = " + getStyleFlags() + "\n" +
+                "\tnum_glyphs = " + getNumberOfGlyphs() + "\n" +
+                "\tfamily_name = " + getFamilyName() + "\n" +
+                "\tstyle_name = " + getStyleName() + "\n" +
+                "\tnum_fixed_sizes = " + getBitmapStrikes() + "\n" +
+                "\tavailable_sizes = " + Arrays.toString(getAvailableSizes()) + "\n" +
+                "\tnum_charmaps = " + getNumberOfCharacterMaps() + "\n" +
+                "\tcharmaps = " + Arrays.toString(getCharacterMaps()) + "\n" +
+                "\tbbox = \n" + getFontBoundingBox() +
+                "\tunits_per_EM = " + getUnitsPerEM() + "\n" +
+                "\tascender = " + getAscender() + "\n" +
+                "\tdescender = " + getDescender() + "\n" +
+                "\theight = " + getHeight() + "\n" +
+                "\tmax_advance_width = " + getMaxAdvanceWidth() + "\n" +
+                "\tmax_advance_height = " + getMaxAdvanceHeight() + "\n" +
+                "\tunderline_position = " + getUnderlinePosition() + "\n" +
+                "\tunderline_thickness =" + getUnderlineThickness() + "\n" +
+                "\tglyph = " + getGlyphSlot() + "\n" +
+                "\tsize = " + getSize() + "\n" +
+                "\tcharmap = " + getCharMap() + "\n" +
+                "}\n";
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////
 
     static native long FT_Num_Faces(long address);
 

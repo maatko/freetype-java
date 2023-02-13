@@ -19,9 +19,9 @@ jobject JNICALL Java_me_mat_freetype_MemoryUtil_createBuffer(JNIEnv *env, jclass
  */
 void JNICALL Java_me_mat_freetype_MemoryUtil_fillBuffer(JNIEnv *env, jclass clazz, jbyteArray bytes, jobject buffer, jint length) {
     unsigned char* dst = (unsigned char*)(buffer ? env->GetDirectBufferAddress(buffer) : 0);
-	unsigned char* src = (unsigned char*)env->GetPrimitiveArrayCritical(bytes, 0);
-	memcpy(dst, src, length);
-	env->ReleasePrimitiveArrayCritical(bytes, src, 0);
+    unsigned char* src = (unsigned char*)env->GetPrimitiveArrayCritical(bytes, 0);
+    memcpy(dst, src, length);
+    env->ReleasePrimitiveArrayCritical(bytes, src, 0);
 }
 
 /*
@@ -31,7 +31,7 @@ void JNICALL Java_me_mat_freetype_MemoryUtil_fillBuffer(JNIEnv *env, jclass claz
  */
 void JNICALL Java_me_mat_freetype_MemoryUtil_deleteBuffer(JNIEnv *env, jclass clazz, jobject buffer) {
     char* buff = (char*)(buffer ? env->GetDirectBufferAddress(buffer) : NULL);
-	if (buff == NULL)
+    if (buff == NULL)
         return;
     free(buff);
 }
