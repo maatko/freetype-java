@@ -2,3 +2,4 @@ target/
 cmake/
 .vscode/
 .idea/
+src/generated/
