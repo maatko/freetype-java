@@ -1,6 +1,6 @@
 package me.mat.freetype;
 
-import me.mat.freetype.font.Face;
+import me.mat.freetype.font.FontFace;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -29,14 +29,14 @@ public class Freetype {
     }
 
     /**
-     * Creates a new {@link Face} object from
+     * Creates a new {@link FontFace} object from
      * the provided {@link InputStream}
      *
-     * @param inputStream {@link File} file that you want to create the {@link Face} from
-     * @return {@link Face}
+     * @param inputStream {@link File} file that you want to create the {@link FontFace} from
+     * @return {@link FontFace}
      */
 
-    public static Face newFace(InputStream inputStream) {
+    public static FontFace newFontFace(InputStream inputStream) {
         try {
             final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             int nRead;
@@ -45,67 +45,67 @@ public class Freetype {
                 buffer.write(data, 0, nRead);
             }
             buffer.flush();
-            return newFace(buffer.toByteArray(), faceCount++);
+            return newFontFace(buffer.toByteArray(), faceCount++);
         } catch (IOException e) {
             return null;
         }
     }
 
     /**
-     * Creates a new {@link Face} object from
+     * Creates a new {@link FontFace} object from
      * the provided {@link File}
      *
-     * @param file {@link File} file that you want to create the {@link Face} from
-     * @return {@link Face}
+     * @param file {@link File} file that you want to create the {@link FontFace} from
+     * @return {@link FontFace}
      */
 
-    public static Face newFace(File file) {
+    public static FontFace newFontFace(File file) {
         try {
             byte[] fileData = Files.readAllBytes(file.toPath());
             if (fileData.length == 0)
                 return null;
-            return newFace(fileData, faceCount++);
+            return newFontFace(fileData, faceCount++);
         } catch (IOException e) {
             return null;
         }
     }
 
     /**
-     * Creates a new {@link Face} object from
+     * Creates a new {@link FontFace} object from
      * the provided {@link Byte} array and
      * the {@link Integer} face index
      *
-     * @param bytes     {@link Byte} array that you want to create the {@link Face} from
+     * @param bytes     {@link Byte} array that you want to create the {@link FontFace} from
      * @param faceIndex {@link Integer} index of the face
-     * @return {@link Face}
+     * @return {@link FontFace}
      */
 
-    private static Face newFace(byte[] bytes, int faceIndex) {
+    private static FontFace newFontFace(byte[] bytes, int faceIndex) {
         ByteBuffer buffer = MemoryUtil.createBuffer(bytes.length);
         buffer.order(ByteOrder.nativeOrder());
         buffer.limit(buffer.position() + bytes.length);
 
         MemoryUtil.fillBuffer(bytes, buffer, bytes.length);
-        return newFace(buffer, faceIndex);
+        return newFontFace(buffer, faceIndex);
     }
 
     /**
-     * Creates a new {@link Face} object from
+     * Creates a new {@link FontFace} object from
      * the provided {@link ByteBuffer} and
      * the {@link Integer} face index
      *
-     * @param buffer    {@link ByteBuffer} that you want to create the {@link Face} from
+     * @param buffer    {@link ByteBuffer} that you want to create the {@link FontFace} from
      * @param faceIndex {@link Integer} index of the face
-     * @return {@link Face}
+     * @return {@link FontFace}
      */
 
-    private static Face newFace(ByteBuffer buffer, int faceIndex) {
+    private static FontFace newFontFace(ByteBuffer buffer, int faceIndex) {
         long face = FT_New_Memory_Face(address, buffer, buffer.remaining(), faceIndex);
         if (face <= 0) {
             MemoryUtil.deleteBuffer(buffer);
             return null;
         }
-        return new Face(face, buffer, faceIndex);
+        return new FontFace(face, buffer, faceIndex);
     }
 
     /**
