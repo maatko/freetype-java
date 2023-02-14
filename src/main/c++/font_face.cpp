@@ -408,3 +408,12 @@ jboolean JNICALL Java_me_mat_freetype_font_FontFace_FT_1Load_1Glyph(JNIEnv *env,
 jboolean JNICALL Java_me_mat_freetype_font_FontFace_FT_1Set_1Pixel_1Sizes(JNIEnv *env, jclass clazz, jlong address, jlong pixel_width, jlong pixel_height) {
     return FT_Set_Pixel_Sizes((FT_Face)address, pixel_width, pixel_height) == 0 ? true : false;
 }
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Select_Size
+ * Signature: (JI)Z
+ */
+jboolean JNICALL Java_me_mat_freetype_font_FontFace_FT_1Select_1Size(JNIEnv *env, jclass clazz, jlong address, jint strike_index) {
+    return FT_Select_Size((FT_Face)address, strike_index) == 0 ? true : false;
+}

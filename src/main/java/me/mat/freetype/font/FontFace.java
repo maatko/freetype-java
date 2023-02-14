@@ -24,6 +24,30 @@ public class FontFace extends NativeImplementation {
     }
 
     /**
+     * Select a bitmap strike.  To be more precise, this function sets the
+     * scaling factors of the active @FT_Size object in a face so that
+     * bitmaps from this particular strike are taken by @FT_Load_Glyph and
+     * friends.
+     *
+     * @param strikeIndex The index of the bitmap strike in the `available_sizes` field of
+     * @return {@link Boolean}
+     * @apiNote For bitmaps embedded in outline fonts it is common that only a subset
+     * of the available glyphs at a given ppem value is available.  FreeType
+     * silently uses outlines if there is no bitmap for a given glyph index.
+     * <p>
+     * For GX and OpenType variation fonts, a bitmap strike makes sense only
+     * if the default instance is active (this is, no glyph variation takes
+     * place); otherwise, FreeType simply ignores bitmap strikes.  The same
+     * is true for all named instances that are different from the default
+     * instance.
+     * @FT_FaceRec structure.
+     */
+
+    public boolean selectSize(int strikeIndex) {
+        return FT_Select_Size(address, strikeIndex);
+    }
+
+    /**
      * Call @FT_Request_Size to request the nominal size (in pixels).
      *
      * @param pixelWidth  The nominal width, in pixels.
@@ -596,5 +620,7 @@ public class FontFace extends NativeImplementation {
     static native boolean FT_Load_Glyph(long address, long glyphIndex, int loadFlags);
 
     static native boolean FT_Set_Pixel_Sizes(long address, long pixelWidth, long pixelHeight);
+
+    static native boolean FT_Select_Size(long address, int strikeIndex);
 
 }
