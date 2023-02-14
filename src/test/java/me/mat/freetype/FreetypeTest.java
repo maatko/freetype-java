@@ -17,6 +17,7 @@ public class FreetypeTest {
                     System.out.println("FreeType could not generate character.");
                 }
                 System.out.println(fontFace.getGlyphSlot().getAdvanceWidth());
+                System.out.println(fontFace.getGlyphSlot().getGlyphMetrics().getHeight());
 
                 if (!fontFace.free())
                     System.err.println("Failed to free the font Face");
