@@ -129,7 +129,7 @@ public class Freetype {
 
     static {
         final OperatingSystem operatingSystem = OperatingSystem.getSystem();
-        final String libraryName = "freetype-java-" + VERSION + operatingSystem.getSuffix();
+        final String libraryName = operatingSystem.getDynamicLibraryName("freetype-java-");
         final File libraryFile;
         try (final InputStream inputStream = Freetype.class.getResourceAsStream(libraryName)) {
             if (inputStream == null) {

@@ -35,7 +35,18 @@ public enum OperatingSystem {
      */
 
     public File getDynamicLibrary(File directory, String name) {
-        return new File(directory, name + suffix);
+        return new File(directory, getDynamicLibraryName(name));
+    }
+
+    /**
+     * Gets the name of the dynamic library path
+     *
+     * @param name {@link String} name of the file
+     * @return {@link String} name of the library
+     */
+
+    public String getDynamicLibraryName(String name) {
+        return ((this != WINDOWS) ? "lib" : "") + name + suffix;
     }
 
     /**
