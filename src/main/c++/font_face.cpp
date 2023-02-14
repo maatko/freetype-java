@@ -381,3 +381,30 @@ jintArray JNICALL Java_me_mat_freetype_font_FontFace_FT_1Face_1GetVariantsOfChar
     free(data);
     return array;
 }
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Load_Char
+ * Signature: (JJI)Z
+ */
+jboolean JNICALL Java_me_mat_freetype_font_FontFace_FT_1Load_1Char(JNIEnv * env, jclass clazz, jlong address, jlong char_code, jint load_flags) {
+    return FT_Load_Char((FT_Face)address, char_code, load_flags) == 0 ? true : false;
+}
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Load_Glyph
+ * Signature: (JJI)Z
+ */
+jboolean JNICALL Java_me_mat_freetype_font_FontFace_FT_1Load_1Glyph(JNIEnv *env, jclass clazz, jlong address, jlong glyph_index, jint load_flags) {
+    return FT_Load_Glyph((FT_Face)address, glyph_index, load_flags) == 0 ? true : false;
+}
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Set_Pixel_Sizes
+ * Signature: (JJJ)Z
+ */
+jboolean JNICALL Java_me_mat_freetype_font_FontFace_FT_1Set_1Pixel_1Sizes(JNIEnv *env, jclass clazz, jlong address, jlong pixel_width, jlong pixel_height) {
+    return FT_Set_Pixel_Sizes((FT_Face)address, pixel_width, pixel_height) == 0 ? true : false;
+}

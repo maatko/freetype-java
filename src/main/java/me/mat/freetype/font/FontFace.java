@@ -24,6 +24,76 @@ public class FontFace extends NativeImplementation {
     }
 
     /**
+     * Call @FT_Request_Size to request the nominal size (in pixels).
+     *
+     * @param pixelWidth  The nominal width, in pixels.
+     * @param pixelHeight The nominal height, in pixels.
+     * @return {@link Boolean}
+     * @apiNote You should not rely on the resulting glyphs matching or being
+     * constrained to this pixel size.  Refer to @FT_Request_Size to
+     * understand how requested sizes relate to actual sizes.
+     * <p>
+     * Don't use this function if you are using the FreeType cache API.
+     */
+
+    public boolean setPixelSizes(long pixelWidth, long pixelHeight) {
+        return FT_Set_Pixel_Sizes(address, pixelWidth, pixelHeight);
+    }
+
+    /**
+     * Load a glyph into the glyph slot of a face object.
+     *
+     * @param glyphIndex The index of the glyph in the font file.  For CID-keyed fonts
+     *                   (either in PS or in CFF format) this argument specifies the CID
+     *                   value.
+     * @param loadFlags  A flag indicating what to load for this glyph.  The @FT_LOAD_XXX
+     *                   flags can be used to control the glyph loading process (e.g.,
+     *                   whether the outline should be scaled, whether to load bitmaps or
+     *                   not, whether to hint the outline, etc).
+     * @return {@link Boolean}
+     * @apiNote For proper scaling and hinting, the active @FT_Size object owned by
+     * the face has to be meaningfully initialized by calling
+     * @FT_Set_Char_Size before this function, for example.  The loaded
+     * glyph may be transformed.  See @FT_Set_Transform for the details.
+     * <p>
+     * For subsetted CID-keyed fonts, `FT_Err_Invalid_Argument` is returned
+     * for invalid CID values (this is, for CID values that don't have av
+     * corresponding glyph in the font).  See the discussion of the
+     * @FT_FACE_FLAG_CID_KEYED flag for more details.
+     * <p>
+     * If you receive `FT_Err_Glyph_Too_Big`, try getting the glyph outline
+     * at EM size, then scale it manually and fill it as a graphics operation.
+     */
+
+    public boolean loadGlyph(long glyphIndex, int loadFlags) {
+        return FT_Load_Glyph(address, glyphIndex, loadFlags);
+    }
+
+    /**
+     * Load a glyph into the glyph slot of a face object, accessed by its
+     * character code.
+     *
+     * @param charCode  The glyph's character code, according to the current charmap used in the face.
+     * @param loadFlags A flag indicating what to load for this glyph.  The @FT_LOAD_XXX
+     *                  constants can be used to control the glyph loading process (e.g.,
+     *                  whether the outline should be scaled, whether to load bitmaps or
+     *                  not, whether to hint the outline, etc).
+     * @return {@link Boolean}
+     * @apiNote This function simply calls @FT_Get_Char_Index and @FT_Load_Glyph.
+     * <p>
+     * Many fonts contain glyphs that can't be loaded by this function since
+     * its glyph indices are not listed in any of the font's charmaps.
+     * <p>
+     * If no active cmap is set up (i.e., `face->charmap` is zero), the call
+     * to @FT_Get_Char_Index is omitted, and the function behaves identically
+     * to @FT_Load_Glyph.
+     */
+
+    public boolean loadChar(long charCode, int loadFlags) {
+        return FT_Load_Char(address, charCode, loadFlags);
+    }
+
+    /**
      * Return a zero-terminated list of Unicode variation selectors found for
      * the specified character code.
      *
@@ -520,5 +590,11 @@ public class FontFace extends NativeImplementation {
     static native int[] FT_Face_GetVariantSelectors(long address);
 
     static native int[] FT_Face_GetVariantsOfChar(long address, long charCode);
+
+    static native boolean FT_Load_Char(long address, long charCode, int loadFlags);
+
+    static native boolean FT_Load_Glyph(long address, long glyphIndex, int loadFlags);
+
+    static native boolean FT_Set_Pixel_Sizes(long address, long pixelWidth, long pixelHeight);
 
 }
