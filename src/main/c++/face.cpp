@@ -291,3 +291,93 @@ jlong JNICALL Java_me_mat_freetype_font_FontFace_FT_1CharMap_1Face(JNIEnv *env, 
         return -1;
     return (jlong)face->charmap;
 }
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Face_CheckTrueTypePatents
+ * Signature: (J)Z
+ */
+jboolean JNICALL Java_me_mat_freetype_font_FontFace_FT_1Face_1CheckTrueTypePatents(JNIEnv *env, jclass clazz, jlong address) {
+    return FT_Face_CheckTrueTypePatents((FT_Face)address);
+}
+
+#include <cstdio>
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Face_GetCharsOfVariant
+ * Signature: (JJ)[I
+ */
+jintArray JNICALL Java_me_mat_freetype_font_FontFace_FT_1Face_1GetCharsOfVariant(JNIEnv *env, jclass clazz, jlong address, jlong variantSelector) {
+    FT_UInt32* chars = FT_Face_GetCharsOfVariant((FT_Face)address, variantSelector);
+    if (chars == nullptr)
+        return nullptr;
+
+    FT_UInt32 size = sizeof(chars) / sizeof(chars[0]);
+    jint* data = (jint*) calloc(size, sizeof(jint));
+    for(int i = 0; i < size; i++) {
+        data[i] = (jint) chars[i];
+    }
+    jintArray array = env->NewIntArray(size);
+    env->SetIntArrayRegion(array, 0, size, (const jint *)data);
+    free(data);
+    return array;
+}
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Face_GetCharVariantIndex
+ * Signature: (JJJ)I
+ */
+jint JNICALL Java_me_mat_freetype_font_FontFace_FT_1Face_1GetCharVariantIndex(JNIEnv *env, jclass clazz, jlong address, jlong char_code, jlong variantSelector) {
+    return (jint)FT_Face_GetCharVariantIndex((FT_Face)address, char_code, variantSelector);
+}
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Face_GetCharVariantIsDefault
+ * Signature: (JJJ)I
+ */
+JNIEXPORT jint JNICALL Java_me_mat_freetype_font_FontFace_FT_1Face_1GetCharVariantIsDefault(JNIEnv *env, jclass clazz, jlong address, jlong char_code, jlong variantSelector) {
+    return (jint)FT_Face_GetCharVariantIsDefault((FT_Face)address, char_code, variantSelector);
+}
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Face_GetVariantSelectors
+ * Signature: (J)[I
+ */
+JNIEXPORT jintArray JNICALL Java_me_mat_freetype_font_FontFace_FT_1Face_1GetVariantSelectors(JNIEnv *env, jclass clazz, jlong address) {
+    FT_UInt32* variants = FT_Face_GetVariantSelectors((FT_Face)address);
+    if (variants == nullptr) 
+        return nullptr;
+    FT_UInt32 size = sizeof(variants) / sizeof(variants[0]);
+    jint* data = (jint*) calloc(size, sizeof(jint));
+    for(int i = 0; i < size; i++) {
+        data[i] = (jint) variants[i];
+    }
+    jintArray array = env->NewIntArray(size);
+    env->SetIntArrayRegion(array, 0, size, (const jint *)data);
+    free(data);
+    return array;
+}
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Face_GetVariantsOfChar
+ * Signature: (JJ)[I
+ */
+jintArray JNICALL Java_me_mat_freetype_font_FontFace_FT_1Face_1GetVariantsOfChar(JNIEnv *env, jclass clazz, jlong address, jlong char_code) {
+    FT_UInt32* variants = FT_Face_GetVariantsOfChar((FT_Face)address, char_code);
+    if (variants == nullptr) 
+        return nullptr;
+    FT_UInt32 size = sizeof(variants) / sizeof(variants[0]);
+    jint* data = (jint*) calloc(size, sizeof(jint));
+    for(int i = 0; i < size; i++) {
+        data[i] = (jint) variants[i];
+    }
+    jintArray array = env->NewIntArray(size);
+    env->SetIntArrayRegion(array, 0, size, (const jint *)data);
+    free(data);
+    return array;
+}

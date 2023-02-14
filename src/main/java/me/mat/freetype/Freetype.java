@@ -1,6 +1,8 @@
 package me.mat.freetype;
 
 import me.mat.freetype.font.FontFace;
+import me.mat.freetype.util.MemoryUtil;
+import me.mat.freetype.util.OperatingSystem;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -117,13 +119,11 @@ public class Freetype {
             throw new RuntimeException("Failed to free the FreeType library");
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////
+
     static native long FT_Init_FreeType();
 
-    ///////////////////////
-
     static native long FT_New_Memory_Face(long address, ByteBuffer buffer, int length, int faceIndex);
-
-    ///////////////////////
 
     static native boolean FT_Done_FreeType(long address);
 

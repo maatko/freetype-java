@@ -1,10 +1,10 @@
 package me.mat.freetype.font;
 
 import lombok.Getter;
-import me.mat.freetype.MemoryUtil;
-import me.mat.freetype.NativeImplementation;
 import me.mat.freetype.bitmap.BitmapSize;
 import me.mat.freetype.glyph.GlyphSlot;
+import me.mat.freetype.util.MemoryUtil;
+import me.mat.freetype.util.NativeImplementation;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -24,13 +24,112 @@ public class FontFace extends NativeImplementation {
     }
 
     /**
-     * The current active charmap for this face.
+     * Return a zero-terminated list of Unicode variation selectors found for
+     * the specified character code.
      *
-     * @return {@link CharMap}
+     * @param charCode The character codepoint in Unicode.
+     * @return An array of variation selector code points that are
+     * active for the given character, or `NULL` if the corresponding list is
+     * empty.
+     * @apiNote The last item in the array is~0; the array is owned by the @FT_Face
+     * object but can be overwritten or released on the next call to a
+     * FreeType function.
      */
 
-    public CharMap getCharMap() {
-        return new CharMap(FT_CharMap_Face(address));
+    public int[] getVariantsOfChar(long charCode) {
+        return FT_Face_GetVariantsOfChar(address, charCode);
+    }
+
+    /**
+     * Return a zero-terminated list of Unicode variation selectors found in
+     * the font.
+     *
+     * @return An array of selector code points, or `NULL` if there is
+     * *   no valid variation selector cmap subtable.
+     * @apiNote The last item in the array is~0; the array is owned by the @FT_Face
+     * object but can be overwritten or released on the next call to a
+     * FreeType function.
+     */
+
+    public int[] getVariantSelectors() {
+        return FT_Face_GetVariantSelectors(address);
+    }
+
+    /**
+     * Check whether this variation of this Unicode character is the one to
+     * be found in the charmap.
+     *
+     * @param charCode        The character codepoint in Unicode.
+     * @param variantSelector The Unicode codepoint of the variation selector.
+     * @return 1~if found in the standard (Unicode) cmap, 0~if found in the variation
+     * selector cmap, or -1 if it is not a variation.
+     * @apiNote This function is only meaningful if the font has a variation selector
+     * cmap subtable.
+     */
+
+    public int getCharVariantIsDefault(long charCode, long variantSelector) {
+        return FT_Face_GetCharVariantIsDefault(address, charCode, variantSelector);
+    }
+
+    /**
+     * Return the glyph index of a given character code as modified by the
+     * variation selector.
+     *
+     * @param charCode        The character code point in Unicode.
+     * @param variantSelector The Unicode code point of the variation selector.
+     * @return The glyph index.  0~means either 'undefined character code', or
+     * 'undefined selector code', or 'no variation selector cmap subtable',
+     * or 'current CharMap is not Unicode'.
+     * @apiNote *   If you use FreeType to manipulate the contents of font files directly,
+     * be aware that the glyph index returned by this function doesn't always
+     * correspond to the internal indices used within the file.  This is done
+     * to ensure that value~0 always corresponds to the 'missing glyph'.
+     * <p>
+     * This function is only meaningful if <br>
+     * a) the font has a variation selector cmap sub table, and <br>
+     * b) the current charmap has a Unicode encoding.
+     */
+
+    public int getCharVariantIndex(long charCode, long variantSelector) {
+        return FT_Face_GetCharVariantIndex(address, charCode, variantSelector);
+    }
+
+    /**
+     * Return a zero-terminated list of Unicode character codes found for the
+     * specified variation selector.
+     *
+     * @param variantSelector The variation selector code point in Unicode.
+     * @return A list of all the {@link Integer} code points that are specified by this selector
+     * (both default and non-default codes are returned) or `NULL` if there
+     * is no valid cmap or the variation selector is invalid.
+     * @apiNote The last item in the array is~0; the array is owned by the @FT_Face
+     * object but can be overwritten or released on the next call to a
+     * FreeType function.
+     */
+
+    public int[] getCharsOfVariant(long variantSelector) {
+        return FT_Face_GetCharsOfVariant(address, variantSelector);
+    }
+
+    /**
+     * Deprecated, does nothing.
+     *
+     * @return {@link Boolean} Always returns false.
+     */
+
+    @Deprecated
+    public boolean checkTrueTypePatents() {
+        return FT_Face_CheckTrueTypePatents(address);
+    }
+
+    /**
+     * The current active charmap for this face.
+     *
+     * @return {@link FontCharMap}
+     */
+
+    public FontCharMap getCharMap() {
+        return new FontCharMap(this, FT_CharMap_Face(address));
     }
 
     /**
@@ -171,18 +270,18 @@ public class FontFace extends NativeImplementation {
     /**
      * An array of the char maps of the face.
      *
-     * @return Array of {@link CharMap}
+     * @return Array of {@link FontCharMap}
      */
 
-    public CharMap[] getCharacterMaps() {
+    public FontCharMap[] getCharacterMaps() {
         final long[] maps = FT_CharMaps_Face(address);
         if (maps == null || maps.length == 0)
-            return new CharMap[0];
-        CharMap[] charMaps = new CharMap[maps.length];
-        for (int i = 0; i < charMaps.length; i++) {
-            charMaps[i] = new CharMap(maps[i]);
+            return new FontCharMap[0];
+        FontCharMap[] fontCharMaps = new FontCharMap[maps.length];
+        for (int i = 0; i < fontCharMaps.length; i++) {
+            fontCharMaps[i] = new FontCharMap(this, maps[i]);
         }
-        return charMaps;
+        return fontCharMaps;
     }
 
     /**
@@ -400,5 +499,17 @@ public class FontFace extends NativeImplementation {
     static native long FT_CharMap_Face(long address);
 
     static native boolean FT_Done_Face(long address);
+
+    static native boolean FT_Face_CheckTrueTypePatents(long address);
+
+    static native int[] FT_Face_GetCharsOfVariant(long address, long variantSelector);
+
+    static native int FT_Face_GetCharVariantIndex(long address, long charCode, long variantSelector);
+
+    static native int FT_Face_GetCharVariantIsDefault(long address, long charCode, long variantSelector);
+
+    static native int[] FT_Face_GetVariantSelectors(long address);
+
+    static native int[] FT_Face_GetVariantsOfChar(long address, long charCode);
 
 }

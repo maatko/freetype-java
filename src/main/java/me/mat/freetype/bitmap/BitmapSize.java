@@ -1,6 +1,6 @@
 package me.mat.freetype.bitmap;
 
-import me.mat.freetype.NativeImplementation;
+import me.mat.freetype.util.NativeImplementation;
 
 public class BitmapSize extends NativeImplementation {
 

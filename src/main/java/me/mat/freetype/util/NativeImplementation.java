@@ -1,4 +1,4 @@
-package me.mat.freetype;
+package me.mat.freetype.util;
 
 import lombok.AllArgsConstructor;
 

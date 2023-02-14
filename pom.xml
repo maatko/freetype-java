@@ -14,12 +14,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <repositories>
-        <repository>
+    <pluginRepositories>
+        <pluginRepository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
+        </pluginRepository>
+    </pluginRepositories>
 
     <dependencies>
         <dependency>
@@ -33,9 +33,9 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>me.mat.jni</groupId>
+                <groupId>com.github.Mat1337</groupId>
                 <artifactId>jni-maven-plugin</artifactId>
-                <version>1.2</version>
+                <version>1.5</version>
                 <executions>
                     <execution>
                         <id>clean</id>

@@ -1,4 +1,4 @@
-package me.mat.freetype;
+package me.mat.freetype.util;
 
 import lombok.Getter;
 
@@ -48,8 +48,10 @@ public enum OperatingSystem {
     public static OperatingSystem getSystem() {
         final String name = System.getProperty("os.name").toLowerCase();
         for (OperatingSystem operatingSystem : values()) {
-            if (operatingSystem.names.contains(name)) {
-                return operatingSystem;
+            for (String tag : operatingSystem.names) {
+                if (name.contains(tag)) {
+                    return operatingSystem;
+                }
             }
         }
         return WINDOWS;
