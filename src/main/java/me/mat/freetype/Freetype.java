@@ -13,12 +13,15 @@ import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
-public class Freetype {
+public class Freetype implements FreetypeFlags {
 
+    // version of the native freetype library
+    private static final FreetypeVersion FREETYPE_VERSION = new FreetypeVersion(0, 0, 0);
+
+    // version of the library itself
     private static final float VERSION = 1.0f;
 
     private static long address;
-    private static int faceCount;
 
     /**
      * Initializes the Freetype library
@@ -28,6 +31,15 @@ public class Freetype {
         address = FT_Init_FreeType();
         if (address == -1)
             throw new RuntimeException("Failed to initialize the Freetype library");
+
+        final FreetypeVersion version = getFreetypeVersion();
+        System.out.println("|------------------------------|");
+        System.out.println("|   FreeType Native Library    |");
+        System.out.println("|------------------------------|");
+        System.out.println("> Major: " + version.getMajor());
+        System.out.println("> Minor: " + version.getMinor());
+        System.out.println("> Patch: " + version.getPatch());
+        System.out.println("|------------------------------");
     }
 
     /**
@@ -39,6 +51,19 @@ public class Freetype {
      */
 
     public static FontFace newFontFace(InputStream inputStream) {
+        return newFontFace(inputStream, 0);
+    }
+
+    /**
+     * Creates a new {@link FontFace} object from
+     * the provided {@link InputStream}
+     *
+     * @param inputStream {@link File} file that you want to create the {@link FontFace} from
+     * @param faceIndex   {@link Integer} index of the face
+     * @return {@link FontFace}
+     */
+
+    public static FontFace newFontFace(InputStream inputStream, int faceIndex) {
         try {
             final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             int nRead;
@@ -47,7 +72,7 @@ public class Freetype {
                 buffer.write(data, 0, nRead);
             }
             buffer.flush();
-            return newFontFace(buffer.toByteArray(), faceCount++);
+            return newFontFace(buffer.toByteArray(), faceIndex);
         } catch (IOException e) {
             return null;
         }
@@ -62,11 +87,21 @@ public class Freetype {
      */
 
     public static FontFace newFontFace(File file) {
+        return newFontFace(file, 0);
+    }
+
+    /**
+     * Creates a new {@link FontFace} object from
+     * the provided {@link File}
+     *
+     * @param file      {@link File} file that you want to create the {@link FontFace} from
+     * @param faceIndex {@link Integer} index of the face
+     * @return {@link FontFace}
+     */
+
+    public static FontFace newFontFace(File file, int faceIndex) {
         try {
-            byte[] fileData = Files.readAllBytes(file.toPath());
-            if (fileData.length == 0)
-                return null;
-            return newFontFace(fileData, faceCount++);
+            return newFontFace(Files.readAllBytes(file.toPath()), faceIndex);
         } catch (IOException e) {
             return null;
         }
@@ -107,7 +142,18 @@ public class Freetype {
             MemoryUtil.deleteBuffer(buffer);
             return null;
         }
-        return new FontFace(face, buffer, faceIndex);
+        return new FontFace(face, buffer);
+    }
+
+    /**
+     * Return the version of the FreeType library being used
+     *
+     * @return {@link FreetypeVersion}
+     */
+
+    public static FreetypeVersion getFreetypeVersion() {
+        FT_Library_Version(address, FREETYPE_VERSION);
+        return FREETYPE_VERSION;
     }
 
     /**
@@ -123,6 +169,8 @@ public class Freetype {
     //////////////////////////////////////////////////////////////////////////////////////
 
     static native long FT_Init_FreeType();
+
+    static native void FT_Library_Version(long address, FreetypeVersion version);
 
     static native long FT_New_Memory_Face(long address, ByteBuffer buffer, int length, int faceIndex);
 

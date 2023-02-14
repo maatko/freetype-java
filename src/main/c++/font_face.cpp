@@ -294,6 +294,18 @@ jlong JNICALL Java_me_mat_freetype_font_FontFace_FT_1CharMap_1Face(JNIEnv *env, 
 
 /*
  * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Face_Index_Face
+ * Signature: (J)J
+ */
+jlong JNICALL Java_me_mat_freetype_font_FontFace_FT_1Face_1Index_1Face(JNIEnv *env, jclass clazz, jlong address) {
+    FT_Face face = (FT_Face)address;
+    if (face == nullptr)
+        return -1;
+    return (jlong)face->face_index;
+}
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
  * Method:    FT_Face_CheckTrueTypePatents
  * Signature: (J)Z
  */

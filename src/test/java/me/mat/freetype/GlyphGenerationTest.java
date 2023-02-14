@@ -28,12 +28,10 @@ public class GlyphGenerationTest {
                 for (int i = 'A'; i <= 'Z'; i++) {
                     System.out.println("Creating a glyph for '" + (char) i + "'");
                     BufferedImage image = createGlyph(fontFace, (char) i);
-                    if (image != null) {
-                        try {
-                            ImageIO.write(image, "PNG", new File(directory, (char) i + ".png"));
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
+                    try {
+                        ImageIO.write(image, "PNG", new File(directory, (char) i + ".png"));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
                 }
                 if (!fontFace.free())
@@ -46,40 +44,39 @@ public class GlyphGenerationTest {
             throw new RuntimeException("Failed to free the Freetype library");
     }
 
+    /**
+     * Creates a {@link BufferedImage} glyph
+     * from the provided {@link Character}
+     *
+     * @param fontFace {@link FontFace} that you want to use
+     * @param charCode {@link Character} glyph that you want to generate
+     * @return {@link BufferedImage}
+     */
+
     static BufferedImage createGlyph(FontFace fontFace, char charCode) {
-        if (!fontFace.loadChar(charCode, 1 << 2))
-            return null;
+        assert fontFace.loadChar(charCode, Freetype.FT_LOAD_RENDER);
 
         GlyphSlot glyphSlot = fontFace.getGlyphSlot();
-        if (glyphSlot == null)
-            return null;
+        assert glyphSlot != null;
 
         Bitmap bitmap = glyphSlot.getBitmap();
-        if (bitmap == null)
-            return null;
+        assert bitmap != null;
 
-        int bitmapWidth = (int) bitmap.getWidth();
-        int bitmapHeight = (int) bitmap.getRows();
-        byte[] glyphBitmap = new byte[bitmapWidth * bitmapHeight];
-        bitmap.getBuffer().get(glyphBitmap, 0, bitmapWidth * bitmapHeight);
+        final int width = (int) bitmap.getWidth();
+        final int height = (int) bitmap.getRows();
 
-        BufferedImage glyphImage = new BufferedImage(bitmapWidth, bitmapHeight, BufferedImage.TYPE_INT_ARGB);
-        int x = 0;
-        int y = 0;
-        for (int byteAsInt : glyphBitmap) {
-            int argb = (byteAsInt << 24) | (byteAsInt << 16) | (byteAsInt << 8) | byteAsInt;
-            glyphImage.setRGB(x, y, argb);
-            x++;
-            if (x >= bitmapWidth) {
-                x = 0;
-                y++;
-            }
-            if (y >= bitmapHeight) {
-                break;
+        final byte[] glyphBitmap = new byte[width * height];
+        bitmap.getBuffer().get(glyphBitmap, 0, width * height);
+
+        final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                final int value = glyphBitmap[x + y * width] & 0xFF;
+                image.setRGB(x, y, (value << 24) | (value << 16) | (value << 8) | value);
             }
         }
 
-        return glyphImage;
+        return image;
     }
 
 }

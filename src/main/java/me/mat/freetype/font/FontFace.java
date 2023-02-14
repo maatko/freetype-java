@@ -1,6 +1,5 @@
 package me.mat.freetype.font;
 
-import lombok.Getter;
 import me.mat.freetype.bitmap.BitmapSize;
 import me.mat.freetype.glyph.GlyphSlot;
 import me.mat.freetype.util.MemoryUtil;
@@ -13,14 +12,10 @@ public class FontFace extends NativeImplementation {
 
     private final ByteBuffer buffer;
 
-    @Getter
-    private final int faceIndex;
-
-    public FontFace(long address, ByteBuffer buffer, int faceIndex) {
+    public FontFace(long address, ByteBuffer buffer) {
         super(address);
 
         this.buffer = buffer;
-        this.faceIndex = faceIndex;
     }
 
     /**
@@ -160,6 +155,26 @@ public class FontFace extends NativeImplementation {
     @Deprecated
     public boolean checkTrueTypePatents() {
         return FT_Face_CheckTrueTypePatents(address);
+    }
+
+    /**
+     * This field holds two different values. Bits 0-15 are the index of the face in the font file
+     * (starting with value 0). They are set to 0 if there is only one face in the font file.
+     * <p>
+     * [Since 2.6.1] Bits 16-30 are relevant to GX and OpenType variation fonts only,
+     * holding the named instance index for the current face index (starting with value 1; value 0 indicates font access without a named instance). For non-variation fonts, bits 16-30 are ignored. If we have the third named instance of face 4, say, face_index is set to 0x00030004.
+     * <p>
+     * Bit 31 is always zero (this is, face_index is always a positive value).
+     * <p>
+     * [Since 2.9] Changing the design coordinates wit
+     * h FT_Set_Var_Design_Coordinates or FT_Set_Var_Blend_Coordinates does not influence the named instance
+     * index value (only FT_Set_Named_Instance does that).
+     *
+     * @return {@link Long}
+     */
+
+    public long getFaceIndex() {
+        return FT_Face_Index_Face(address);
     }
 
     /**
@@ -546,6 +561,8 @@ public class FontFace extends NativeImplementation {
     static native long FT_Size_Face(long address);
 
     static native long FT_CharMap_Face(long address);
+
+    static native long FT_Face_Index_Face(long address);
 
     static native boolean FT_Done_Face(long address);
 
