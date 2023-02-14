@@ -1,4 +1,4 @@
-#include "me_mat_freetype_Freetype.h"
+#include <me_mat_freetype_Freetype.h>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

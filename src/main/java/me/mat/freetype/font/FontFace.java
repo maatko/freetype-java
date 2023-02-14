@@ -129,17 +129,23 @@ public class FontFace extends NativeImplementation {
      */
 
     public FontCharMap getCharMap() {
-        return new FontCharMap(this, FT_CharMap_Face(address));
+        long address = FT_CharMap_Face(this.address);
+        if (address == -1)
+            return null;
+        return new FontCharMap(this, address);
     }
 
     /**
      * The current active size for this face.
      *
-     * @return {@link Size}
+     * @return {@link FontSize}
      */
 
-    public Size getSize() {
-        return new Size(FT_Size_Face(address));
+    public FontSize getFontSize() {
+        long address = FT_Size_Face(this.address);
+        if (address == -1)
+            return null;
+        return new FontSize(this, address);
     }
 
     /**
@@ -149,7 +155,10 @@ public class FontFace extends NativeImplementation {
      */
 
     public GlyphSlot getGlyphSlot() {
-        return new GlyphSlot(FT_Glyph_Face(address));
+        long address = FT_Glyph_Face(this.address);
+        if (address == -1)
+            return null;
+        return new GlyphSlot(this, address);
     }
 
     /**
@@ -447,7 +456,7 @@ public class FontFace extends NativeImplementation {
                 "\tunderline_position = " + getUnderlinePosition() + "\n" +
                 "\tunderline_thickness =" + getUnderlineThickness() + "\n" +
                 "\tglyph = " + getGlyphSlot() + "\n" +
-                "\tsize = " + getSize() + "\n" +
+                "\tsize = " + getFontSize() + "\n" +
                 "\tcharmap = " + getCharMap() + "\n" +
                 "}\n";
     }
