@@ -3,40 +3,47 @@ package me.mat.freetype;
 import me.mat.freetype.bitmap.Bitmap;
 import me.mat.freetype.font.FontFace;
 import me.mat.freetype.glyph.GlyphSlot;
+import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
-public class FreetypeTest {
+public class GlyphGenerationTest {
 
-    public static void main(String[] args) {
+    @Test
+    public void generate() {
+        final File directory = new File("target", "test-glyphs");
+        if (!directory.exists()) {
+            if (!directory.mkdirs())
+                throw new RuntimeException("Failed to create the glyphs directory");
+        }
+
         Freetype.init();
         {
-            FontFace fontFace = Freetype.newFontFace(new File("C:/Windows/Fonts/Arial.ttf"));
+            FontFace fontFace = Freetype.newFontFace(new File("CascadiaCode.ttf"));
             if (fontFace != null) {
                 fontFace.setPixelSizes(0, 1024);
-
-                for (int i = 'A'; i < 'Z'; i++) {
+                for (int i = 'A'; i <= 'Z'; i++) {
+                    System.out.println("Creating a glyph for '" + (char) i + "'");
                     BufferedImage image = createGlyph(fontFace, (char) i);
                     if (image != null) {
                         try {
-                            ImageIO.write(image, "PNG", new File("target/" + (char) i + ".png"));
+                            ImageIO.write(image, "PNG", new File(directory, (char) i + ".png"));
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
                     }
                 }
-
                 if (!fontFace.free())
-                    System.err.println("Failed to free the font Face");
+                    throw new RuntimeException("Failed to free the FontFace");
             } else {
-                System.err.println("Failed to create the font Face");
+                throw new RuntimeException("Failed to create the FontFace");
             }
         }
-        Freetype.free();
+        if (!Freetype.free())
+            throw new RuntimeException("Failed to free the Freetype library");
     }
 
     static BufferedImage createGlyph(FontFace fontFace, char charCode) {

@@ -31,16 +31,6 @@ public class FontFace extends NativeImplementation {
      *
      * @param strikeIndex The index of the bitmap strike in the `available_sizes` field of
      * @return {@link Boolean}
-     * @apiNote For bitmaps embedded in outline fonts it is common that only a subset
-     * of the available glyphs at a given ppem value is available.  FreeType
-     * silently uses outlines if there is no bitmap for a given glyph index.
-     * <p>
-     * For GX and OpenType variation fonts, a bitmap strike makes sense only
-     * if the default instance is active (this is, no glyph variation takes
-     * place); otherwise, FreeType simply ignores bitmap strikes.  The same
-     * is true for all named instances that are different from the default
-     * instance.
-     * @FT_FaceRec structure.
      */
 
     public boolean selectSize(int strikeIndex) {
@@ -53,11 +43,6 @@ public class FontFace extends NativeImplementation {
      * @param pixelWidth  The nominal width, in pixels.
      * @param pixelHeight The nominal height, in pixels.
      * @return {@link Boolean}
-     * @apiNote You should not rely on the resulting glyphs matching or being
-     * constrained to this pixel size.  Refer to @FT_Request_Size to
-     * understand how requested sizes relate to actual sizes.
-     * <p>
-     * Don't use this function if you are using the FreeType cache API.
      */
 
     public boolean setPixelSizes(long pixelWidth, long pixelHeight) {
@@ -75,18 +60,6 @@ public class FontFace extends NativeImplementation {
      *                   whether the outline should be scaled, whether to load bitmaps or
      *                   not, whether to hint the outline, etc).
      * @return {@link Boolean}
-     * @apiNote For proper scaling and hinting, the active @FT_Size object owned by
-     * the face has to be meaningfully initialized by calling
-     * @FT_Set_Char_Size before this function, for example.  The loaded
-     * glyph may be transformed.  See @FT_Set_Transform for the details.
-     * <p>
-     * For subsetted CID-keyed fonts, `FT_Err_Invalid_Argument` is returned
-     * for invalid CID values (this is, for CID values that don't have av
-     * corresponding glyph in the font).  See the discussion of the
-     * @FT_FACE_FLAG_CID_KEYED flag for more details.
-     * <p>
-     * If you receive `FT_Err_Glyph_Too_Big`, try getting the glyph outline
-     * at EM size, then scale it manually and fill it as a graphics operation.
      */
 
     public boolean loadGlyph(long glyphIndex, int loadFlags) {
@@ -98,19 +71,11 @@ public class FontFace extends NativeImplementation {
      * character code.
      *
      * @param charCode  The glyph's character code, according to the current charmap used in the face.
-     * @param loadFlags A flag indicating what to load for this glyph.  The @FT_LOAD_XXX
+     * @param loadFlags A flag indicating what to load for this glyph.  The FT_LOAD_XXX
      *                  constants can be used to control the glyph loading process (e.g.,
      *                  whether the outline should be scaled, whether to load bitmaps or
      *                  not, whether to hint the outline, etc).
      * @return {@link Boolean}
-     * @apiNote This function simply calls @FT_Get_Char_Index and @FT_Load_Glyph.
-     * <p>
-     * Many fonts contain glyphs that can't be loaded by this function since
-     * its glyph indices are not listed in any of the font's charmaps.
-     * <p>
-     * If no active cmap is set up (i.e., `face->charmap` is zero), the call
-     * to @FT_Get_Char_Index is omitted, and the function behaves identically
-     * to @FT_Load_Glyph.
      */
 
     public boolean loadChar(long charCode, int loadFlags) {
@@ -125,9 +90,6 @@ public class FontFace extends NativeImplementation {
      * @return An array of variation selector code points that are
      * active for the given character, or `NULL` if the corresponding list is
      * empty.
-     * @apiNote The last item in the array is~0; the array is owned by the @FT_Face
-     * object but can be overwritten or released on the next call to a
-     * FreeType function.
      */
 
     public int[] getVariantsOfChar(long charCode) {
@@ -139,10 +101,7 @@ public class FontFace extends NativeImplementation {
      * the font.
      *
      * @return An array of selector code points, or `NULL` if there is
-     * *   no valid variation selector cmap subtable.
-     * @apiNote The last item in the array is~0; the array is owned by the @FT_Face
-     * object but can be overwritten or released on the next call to a
-     * FreeType function.
+     * no valid variation selector cmap subtable.
      */
 
     public int[] getVariantSelectors() {
@@ -157,8 +116,6 @@ public class FontFace extends NativeImplementation {
      * @param variantSelector The Unicode codepoint of the variation selector.
      * @return 1~if found in the standard (Unicode) cmap, 0~if found in the variation
      * selector cmap, or -1 if it is not a variation.
-     * @apiNote This function is only meaningful if the font has a variation selector
-     * cmap subtable.
      */
 
     public int getCharVariantIsDefault(long charCode, long variantSelector) {
@@ -174,14 +131,6 @@ public class FontFace extends NativeImplementation {
      * @return The glyph index.  0~means either 'undefined character code', or
      * 'undefined selector code', or 'no variation selector cmap subtable',
      * or 'current CharMap is not Unicode'.
-     * @apiNote *   If you use FreeType to manipulate the contents of font files directly,
-     * be aware that the glyph index returned by this function doesn't always
-     * correspond to the internal indices used within the file.  This is done
-     * to ensure that value~0 always corresponds to the 'missing glyph'.
-     * <p>
-     * This function is only meaningful if <br>
-     * a) the font has a variation selector cmap sub table, and <br>
-     * b) the current charmap has a Unicode encoding.
      */
 
     public int getCharVariantIndex(long charCode, long variantSelector) {
@@ -196,9 +145,6 @@ public class FontFace extends NativeImplementation {
      * @return A list of all the {@link Integer} code points that are specified by this selector
      * (both default and non-default codes are returned) or `NULL` if there
      * is no valid cmap or the variation selector is invalid.
-     * @apiNote The last item in the array is~0; the array is owned by the @FT_Face
-     * object but can be overwritten or released on the next call to a
-     * FreeType function.
      */
 
     public int[] getCharsOfVariant(long variantSelector) {
@@ -449,7 +395,7 @@ public class FontFace extends NativeImplementation {
      * The face's family name. This is an ASCII string, usually in English,
      * that describes the typeface's family (like ‘Times New Roman’, ‘Bodoni’, ‘Garamond’, etc).
      * This is the least common denominator used to list fonts.
-     * Some formats (TrueType & OpenType) provide localized and Unicode versions of this string.
+     * Some formats (TrueType and OpenType) provide localized and Unicode versions of this string.
      * Applications should use the format-specific interface to access them.
      * Can be NULL (e.g., in fonts embedded in a PDF file).
      * <p>

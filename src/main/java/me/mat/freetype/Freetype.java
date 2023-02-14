@@ -112,11 +112,12 @@ public class Freetype {
 
     /**
      * Frees the Freetype library
+     *
+     * @return {@link Boolean}
      */
 
-    public static void free() {
-        if (!FT_Done_FreeType(address))
-            throw new RuntimeException("Failed to free the FreeType library");
+    public static boolean free() {
+        return FT_Done_FreeType(address);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
