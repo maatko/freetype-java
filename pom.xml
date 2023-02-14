@@ -35,7 +35,7 @@
             <plugin>
                 <groupId>com.github.Mat1337</groupId>
                 <artifactId>jni-maven-plugin</artifactId>
-                <version>1.5</version>
+                <version>1.6</version>
                 <executions>
                     <execution>
                         <id>clean</id>
@@ -50,6 +50,13 @@
                         <goals>
                             <goal>generate-headers</goal>
                             <goal>build</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>package</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package</goal>
                         </goals>
                     </execution>
                 </executions>
