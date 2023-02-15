@@ -4,26 +4,17 @@ import me.mat.freetype.FreetypeException;
 import me.mat.freetype.bitmap.BitmapSize;
 import me.mat.freetype.glyph.FreetypeGlyphException;
 import me.mat.freetype.glyph.GlyphSlot;
-import me.mat.freetype.util.MemoryUtil;
 import me.mat.freetype.util.NativeImplementation;
 
-import java.nio.ByteBuffer;
 
 public class FontFace extends NativeImplementation implements AutoCloseable {
 
-    private final ByteBuffer buffer;
-
-    public FontFace(long address, ByteBuffer buffer) {
+    public FontFace(long address) {
         super(address);
-
-        this.buffer = buffer;
     }
 
     @Override
     public void close() throws Exception {
-        if (buffer != null)
-            MemoryUtil.deleteBuffer(buffer);
-
         long error_code = FT_Done_Face(address);
         if (error_code < 0)
             throw FreetypeException.create("Failed to free the FontFace", error_code);

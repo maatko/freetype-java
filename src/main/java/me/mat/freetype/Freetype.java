@@ -3,7 +3,7 @@ package me.mat.freetype;
 import lombok.Getter;
 import me.mat.freetype.font.FontFace;
 import me.mat.freetype.font.FreetypeFaceException;
-import me.mat.freetype.util.MemoryUtil;
+import me.mat.freetype.memory.MemoryStack;
 import me.mat.freetype.util.NativeImplementation;
 import me.mat.freetype.util.OperatingSystem;
 
@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
@@ -20,6 +19,8 @@ public class Freetype extends NativeImplementation implements FreetypeFlags, Aut
 
     // version of the library itself
     private static final float VERSION = 1.0f;
+
+    private final MemoryStack stack;
 
     @Getter
     private final FreetypeVersion version;
@@ -30,6 +31,7 @@ public class Freetype extends NativeImplementation implements FreetypeFlags, Aut
         if (address < 0)
             throw FreetypeException.create("Failed to initialize the Freetype library", address);
 
+        this.stack = new MemoryStack();
         this.version = new FreetypeVersion(0, 0, 0);
         FT_Library_Version(address, this.version);
 
@@ -44,6 +46,9 @@ public class Freetype extends NativeImplementation implements FreetypeFlags, Aut
 
     @Override
     public void close() throws Exception {
+        // frees all the data that's on the stack
+        stack.close();
+
         long error_code = FT_Done_FreeType(address);
         if (error_code < 0) {
             throw FreetypeException.create("Failed to free the Freetype library", error_code);
@@ -72,7 +77,7 @@ public class Freetype extends NativeImplementation implements FreetypeFlags, Aut
      * @param faceIndex   {@link Integer} index of the face
      * @return {@link FontFace}
      * @throws FreetypeFaceException occurs when something goes wrong with the creation of the {@link FontFace}
-     * @throws IOException           occurs when something goes wrong with the creation of the {@link FontFace}
+     * @throws IOException           occurs when something goes wrong with reading the {@link InputStream}
      */
 
     public FontFace newFontFace(InputStream inputStream, int faceIndex) throws FreetypeFaceException, IOException {
@@ -93,7 +98,7 @@ public class Freetype extends NativeImplementation implements FreetypeFlags, Aut
      * @param file {@link File} file that you want to create the {@link FontFace} from
      * @return {@link FontFace}
      * @throws FreetypeFaceException occurs when something goes wrong with the creation of the {@link FontFace}
-     * @throws IOException           occurs when something goes wrong with the creation of the {@link FontFace}
+     * @throws IOException           occurs when something goes wrong with reading the {@link InputStream}
      */
 
     public FontFace newFontFace(File file) throws FreetypeFaceException, IOException {
@@ -108,7 +113,7 @@ public class Freetype extends NativeImplementation implements FreetypeFlags, Aut
      * @param faceIndex {@link Integer} index of the face
      * @return {@link FontFace}
      * @throws FreetypeFaceException occurs when something goes wrong with the creation of the {@link FontFace}
-     * @throws IOException           occurs when something goes wrong with the creation of the {@link FontFace}
+     * @throws IOException           occurs when something goes wrong with reading the {@link InputStream}
      */
 
     public FontFace newFontFace(File file, int faceIndex) throws FreetypeFaceException, IOException {
@@ -126,15 +131,12 @@ public class Freetype extends NativeImplementation implements FreetypeFlags, Aut
      * @param faceIndex {@link Integer} index of the face
      * @return {@link FontFace}
      * @throws FreetypeFaceException occurs when something goes wrong with the creation of the {@link FontFace}
-     * @throws IOException           occurs when something goes wrong with the creation of the {@link FontFace}
      */
 
     private FontFace newFontFace(byte[] bytes, int faceIndex) throws FreetypeFaceException {
-        ByteBuffer buffer = MemoryUtil.createBuffer(bytes.length);
-        buffer.order(ByteOrder.nativeOrder());
-        buffer.limit(buffer.position() + bytes.length);
-
-        MemoryUtil.fillBuffer(bytes, buffer, bytes.length);
+        final ByteBuffer buffer = stack.malloc(bytes.length);
+        buffer.put(bytes);
+        buffer.flip();
         return newFontFace(buffer, faceIndex);
     }
 
@@ -147,16 +149,13 @@ public class Freetype extends NativeImplementation implements FreetypeFlags, Aut
      * @param faceIndex {@link Integer} index of the face
      * @return {@link FontFace}
      * @throws FreetypeFaceException occurs when something goes wrong with the creation of the {@link FontFace}
-     * @throws IOException           occurs when something goes wrong with the creation of the {@link FontFace}
      */
 
     private FontFace newFontFace(ByteBuffer buffer, int faceIndex) throws FreetypeFaceException {
         long face = FT_New_Memory_Face(address, buffer, buffer.remaining(), faceIndex);
-        if (face <= 0) {
-            MemoryUtil.deleteBuffer(buffer);
+        if (face <= 0)
             throw FreetypeFaceException.create("Failed to create the FontFace", face);
-        }
-        return new FontFace(face, buffer);
+        return new FontFace(face);
     }
 
     /**

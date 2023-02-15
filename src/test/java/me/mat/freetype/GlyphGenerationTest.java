@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 
 public class GlyphGenerationTest {
 
@@ -62,7 +61,7 @@ public class GlyphGenerationTest {
         final int height = (int) bitmap.getRows();
 
         final byte[] glyphBitmap = new byte[width * height];
-        bitmap.getBuffer().get(glyphBitmap, 0, width * height);
+        bitmap.getBuffer().get(glyphBitmap, 0, glyphBitmap.length);
 
         final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         for (int x = 0; x < width; x++) {
