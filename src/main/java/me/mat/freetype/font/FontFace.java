@@ -1,14 +1,15 @@
 package me.mat.freetype.font;
 
+import me.mat.freetype.FreetypeException;
 import me.mat.freetype.bitmap.BitmapSize;
+import me.mat.freetype.glyph.FreetypeGlyphException;
 import me.mat.freetype.glyph.GlyphSlot;
 import me.mat.freetype.util.MemoryUtil;
 import me.mat.freetype.util.NativeImplementation;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
-public class FontFace extends NativeImplementation {
+public class FontFace extends NativeImplementation implements AutoCloseable {
 
     private final ByteBuffer buffer;
 
@@ -18,6 +19,16 @@ public class FontFace extends NativeImplementation {
         this.buffer = buffer;
     }
 
+    @Override
+    public void close() throws Exception {
+        if (buffer != null)
+            MemoryUtil.deleteBuffer(buffer);
+
+        long error_code = FT_Done_Face(address);
+        if (error_code < 0)
+            throw FreetypeException.create("Failed to free the FontFace", error_code);
+    }
+
     /**
      * Select a bitmap strike.  To be more precise, this function sets the
      * scaling factors of the active @FT_Size object in a face so that
@@ -25,11 +36,13 @@ public class FontFace extends NativeImplementation {
      * friends.
      *
      * @param strikeIndex The index of the bitmap strike in the `available_sizes` field of
-     * @return {@link Boolean}
+     * @throws FreetypeException occurs when something goes wrong with executing the method
      */
 
-    public boolean selectSize(int strikeIndex) {
-        return FT_Select_Size(address, strikeIndex);
+    public void selectSize(int strikeIndex) throws FreetypeException {
+        long error_code = FT_Select_Size(address, strikeIndex);
+        if (error_code < 0)
+            throw FreetypeException.create("Failed to execute FT_Select_Size", error_code);
     }
 
     /**
@@ -37,11 +50,13 @@ public class FontFace extends NativeImplementation {
      *
      * @param pixelWidth  The nominal width, in pixels.
      * @param pixelHeight The nominal height, in pixels.
-     * @return {@link Boolean}
+     * @throws FreetypeException occurs when something goes wrong with executing the method
      */
 
-    public boolean setPixelSizes(long pixelWidth, long pixelHeight) {
-        return FT_Set_Pixel_Sizes(address, pixelWidth, pixelHeight);
+    public void setPixelSizes(long pixelWidth, long pixelHeight) throws FreetypeException {
+        long error_code = FT_Set_Pixel_Sizes(address, pixelWidth, pixelHeight);
+        if (error_code < 0)
+            throw FreetypeException.create("Failed to execute FT_Set_Pixel_Sizes", error_code);
     }
 
     /**
@@ -54,11 +69,13 @@ public class FontFace extends NativeImplementation {
      *                   flags can be used to control the glyph loading process (e.g.,
      *                   whether the outline should be scaled, whether to load bitmaps or
      *                   not, whether to hint the outline, etc).
-     * @return {@link Boolean}
+     * @throws FreetypeGlyphException occurs when something goes wrong with loading the Glyph
      */
 
-    public boolean loadGlyph(long glyphIndex, int loadFlags) {
-        return FT_Load_Glyph(address, glyphIndex, loadFlags);
+    public void loadGlyph(long glyphIndex, int loadFlags) throws FreetypeGlyphException {
+        long error_code = FT_Load_Glyph(address, glyphIndex, loadFlags);
+        if (error_code < 0)
+            throw FreetypeGlyphException.create("Failed to load the Glyph", error_code);
     }
 
     /**
@@ -70,11 +87,13 @@ public class FontFace extends NativeImplementation {
      *                  constants can be used to control the glyph loading process (e.g.,
      *                  whether the outline should be scaled, whether to load bitmaps or
      *                  not, whether to hint the outline, etc).
-     * @return {@link Boolean}
+     * @throws FreetypeGlyphException occurs when something goes wrong with loading the Glyph
      */
 
-    public boolean loadChar(long charCode, int loadFlags) {
-        return FT_Load_Char(address, charCode, loadFlags);
+    public void loadChar(long charCode, int loadFlags) throws FreetypeGlyphException {
+        long error_code = FT_Load_Char(address, charCode, loadFlags);
+        if (error_code < 0)
+            throw FreetypeGlyphException.create("Failed to load the Glyph", error_code);
     }
 
     /**
@@ -475,47 +494,6 @@ public class FontFace extends NativeImplementation {
         return FT_Num_Faces(address);
     }
 
-    /**
-     * Deletes the current font {@link FontFace}
-     *
-     * @return {@link Boolean}
-     */
-
-    public boolean free() {
-        if (buffer != null)
-            MemoryUtil.deleteBuffer(buffer);
-        return FT_Done_Face(address);
-    }
-
-    @Override
-    public String toString() {
-        return "FontFace {\n" +
-                "\tnum_faces = " + getNumberOfFaces() + "\n" +
-                "\tface_index = " + getFaceIndex() + "\n" +
-                "\tface_flags = " + getFaceFlags() + "\n" +
-                "\tstyle_flags = " + getStyleFlags() + "\n" +
-                "\tnum_glyphs = " + getNumberOfGlyphs() + "\n" +
-                "\tfamily_name = " + getFamilyName() + "\n" +
-                "\tstyle_name = " + getStyleName() + "\n" +
-                "\tnum_fixed_sizes = " + getBitmapStrikes() + "\n" +
-                "\tavailable_sizes = " + Arrays.toString(getAvailableSizes()) + "\n" +
-                "\tnum_charmaps = " + getNumberOfCharacterMaps() + "\n" +
-                "\tcharmaps = " + Arrays.toString(getCharacterMaps()) + "\n" +
-                "\tbbox = \n" + getFontBoundingBox() +
-                "\tunits_per_EM = " + getUnitsPerEM() + "\n" +
-                "\tascender = " + getAscender() + "\n" +
-                "\tdescender = " + getDescender() + "\n" +
-                "\theight = " + getHeight() + "\n" +
-                "\tmax_advance_width = " + getMaxAdvanceWidth() + "\n" +
-                "\tmax_advance_height = " + getMaxAdvanceHeight() + "\n" +
-                "\tunderline_position = " + getUnderlinePosition() + "\n" +
-                "\tunderline_thickness =" + getUnderlineThickness() + "\n" +
-                "\tglyph = " + getGlyphSlot() + "\n" +
-                "\tsize = " + getFontSize() + "\n" +
-                "\tcharmap = " + getCharMap() + "\n" +
-                "}\n";
-    }
-
     //////////////////////////////////////////////////////////////////////////////////////
 
     static native long FT_Num_Faces(long address);
@@ -564,7 +542,7 @@ public class FontFace extends NativeImplementation {
 
     static native long FT_Face_Index_Face(long address);
 
-    static native boolean FT_Done_Face(long address);
+    static native long FT_Done_Face(long address);
 
     static native boolean FT_Face_CheckTrueTypePatents(long address);
 
@@ -578,12 +556,12 @@ public class FontFace extends NativeImplementation {
 
     static native int[] FT_Face_GetVariantsOfChar(long address, long charCode);
 
-    static native boolean FT_Load_Char(long address, long charCode, int loadFlags);
+    static native long FT_Load_Char(long address, long charCode, int loadFlags);
 
-    static native boolean FT_Load_Glyph(long address, long glyphIndex, int loadFlags);
+    static native long FT_Load_Glyph(long address, long glyphIndex, int loadFlags);
 
-    static native boolean FT_Set_Pixel_Sizes(long address, long pixelWidth, long pixelHeight);
+    static native long FT_Set_Pixel_Sizes(long address, long pixelWidth, long pixelHeight);
 
-    static native boolean FT_Select_Size(long address, int strikeIndex);
+    static native long FT_Select_Size(long address, int strikeIndex);
 
 }

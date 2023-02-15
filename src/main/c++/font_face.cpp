@@ -8,8 +8,9 @@
  * Method:    FT_Done_Face
  * Signature: (J)Z
  */
-jboolean JNICALL Java_me_mat_freetype_font_FontFace_FT_1Done_1Face(JNIEnv *env, jclass clazz, jlong address) {
-    return FT_Done_Face((FT_Face)address) ? false : true;
+jlong JNICALL Java_me_mat_freetype_font_FontFace_FT_1Done_1Face(JNIEnv *env, jclass clazz, jlong address) {
+    FT_Error error_code = FT_Done_Face((FT_Face)address);
+    return error_code == 0 ? error_code : error_code * -1;
 }
 
 /*
@@ -121,7 +122,7 @@ jlongArray JNICALL Java_me_mat_freetype_font_FontFace_FT_1Available_1Sizes_1Face
  * Method:    FT_Num_CharMaps_Face
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_me_mat_freetype_font_FontFace_FT_1Num_1CharMaps_1Face(JNIEnv *env, jclass clazz, jlong address) {
+jint JNICALL Java_me_mat_freetype_font_FontFace_FT_1Num_1CharMaps_1Face(JNIEnv *env, jclass clazz, jlong address) {
     FT_Face face = (FT_Face)address;
     if (face == nullptr)
         return -1; 
@@ -313,8 +314,6 @@ jboolean JNICALL Java_me_mat_freetype_font_FontFace_FT_1Face_1CheckTrueTypePaten
     return FT_Face_CheckTrueTypePatents((FT_Face)address);
 }
 
-#include <cstdio>
-
 /*
  * Class:     me_mat_freetype_font_FontFace
  * Method:    FT_Face_GetCharsOfVariant
@@ -350,7 +349,7 @@ jint JNICALL Java_me_mat_freetype_font_FontFace_FT_1Face_1GetCharVariantIndex(JN
  * Method:    FT_Face_GetCharVariantIsDefault
  * Signature: (JJJ)I
  */
-JNIEXPORT jint JNICALL Java_me_mat_freetype_font_FontFace_FT_1Face_1GetCharVariantIsDefault(JNIEnv *env, jclass clazz, jlong address, jlong char_code, jlong variantSelector) {
+jint JNICALL Java_me_mat_freetype_font_FontFace_FT_1Face_1GetCharVariantIsDefault(JNIEnv *env, jclass clazz, jlong address, jlong char_code, jlong variantSelector) {
     return (jint)FT_Face_GetCharVariantIsDefault((FT_Face)address, char_code, variantSelector);
 }
 
@@ -359,7 +358,7 @@ JNIEXPORT jint JNICALL Java_me_mat_freetype_font_FontFace_FT_1Face_1GetCharVaria
  * Method:    FT_Face_GetVariantSelectors
  * Signature: (J)[I
  */
-JNIEXPORT jintArray JNICALL Java_me_mat_freetype_font_FontFace_FT_1Face_1GetVariantSelectors(JNIEnv *env, jclass clazz, jlong address) {
+jintArray JNICALL Java_me_mat_freetype_font_FontFace_FT_1Face_1GetVariantSelectors(JNIEnv *env, jclass clazz, jlong address) {
     FT_UInt32* variants = FT_Face_GetVariantSelectors((FT_Face)address);
     if (variants == nullptr) 
         return nullptr;
@@ -399,8 +398,9 @@ jintArray JNICALL Java_me_mat_freetype_font_FontFace_FT_1Face_1GetVariantsOfChar
  * Method:    FT_Load_Char
  * Signature: (JJI)Z
  */
-jboolean JNICALL Java_me_mat_freetype_font_FontFace_FT_1Load_1Char(JNIEnv * env, jclass clazz, jlong address, jlong char_code, jint load_flags) {
-    return FT_Load_Char((FT_Face)address, char_code, load_flags) == 0 ? true : false;
+jlong JNICALL Java_me_mat_freetype_font_FontFace_FT_1Load_1Char(JNIEnv * env, jclass clazz, jlong address, jlong char_code, jint load_flags) {
+    FT_Error error_code = FT_Load_Char((FT_Face)address, char_code, load_flags);
+    return error_code == 0 ? error_code : error_code * -1;
 }
 
 /*
@@ -408,8 +408,9 @@ jboolean JNICALL Java_me_mat_freetype_font_FontFace_FT_1Load_1Char(JNIEnv * env,
  * Method:    FT_Load_Glyph
  * Signature: (JJI)Z
  */
-jboolean JNICALL Java_me_mat_freetype_font_FontFace_FT_1Load_1Glyph(JNIEnv *env, jclass clazz, jlong address, jlong glyph_index, jint load_flags) {
-    return FT_Load_Glyph((FT_Face)address, glyph_index, load_flags) == 0 ? true : false;
+jlong JNICALL Java_me_mat_freetype_font_FontFace_FT_1Load_1Glyph(JNIEnv *env, jclass clazz, jlong address, jlong glyph_index, jint load_flags) {
+    FT_Error error_code = FT_Load_Glyph((FT_Face)address, glyph_index, load_flags);
+    return error_code == 0 ? error_code : error_code * -1;
 }
 
 /*
@@ -417,8 +418,9 @@ jboolean JNICALL Java_me_mat_freetype_font_FontFace_FT_1Load_1Glyph(JNIEnv *env,
  * Method:    FT_Set_Pixel_Sizes
  * Signature: (JJJ)Z
  */
-jboolean JNICALL Java_me_mat_freetype_font_FontFace_FT_1Set_1Pixel_1Sizes(JNIEnv *env, jclass clazz, jlong address, jlong pixel_width, jlong pixel_height) {
-    return FT_Set_Pixel_Sizes((FT_Face)address, pixel_width, pixel_height) == 0 ? true : false;
+jlong JNICALL Java_me_mat_freetype_font_FontFace_FT_1Set_1Pixel_1Sizes(JNIEnv *env, jclass clazz, jlong address, jlong pixel_width, jlong pixel_height) {
+    FT_Error error_code = FT_Set_Pixel_Sizes((FT_Face)address, pixel_width, pixel_height);
+    return error_code == 0 ? error_code : error_code * -1;
 }
 
 /*
@@ -426,6 +428,7 @@ jboolean JNICALL Java_me_mat_freetype_font_FontFace_FT_1Set_1Pixel_1Sizes(JNIEnv
  * Method:    FT_Select_Size
  * Signature: (JI)Z
  */
-jboolean JNICALL Java_me_mat_freetype_font_FontFace_FT_1Select_1Size(JNIEnv *env, jclass clazz, jlong address, jint strike_index) {
-    return FT_Select_Size((FT_Face)address, strike_index) == 0 ? true : false;
+jlong JNICALL Java_me_mat_freetype_font_FontFace_FT_1Select_1Size(JNIEnv *env, jclass clazz, jlong address, jint strike_index) {
+    FT_Error error_code = FT_Select_Size((FT_Face)address, strike_index);
+    return error_code == 0 ? error_code : error_code * -1;
 }

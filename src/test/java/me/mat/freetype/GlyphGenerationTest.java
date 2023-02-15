@@ -2,6 +2,8 @@ package me.mat.freetype;
 
 import me.mat.freetype.bitmap.Bitmap;
 import me.mat.freetype.font.FontFace;
+import me.mat.freetype.font.FreetypeFaceException;
+import me.mat.freetype.glyph.FreetypeGlyphException;
 import me.mat.freetype.glyph.GlyphSlot;
 import org.junit.jupiter.api.Test;
 
@@ -19,29 +21,23 @@ public class GlyphGenerationTest {
             if (!directory.mkdirs())
                 throw new RuntimeException("Failed to create the glyphs directory");
         }
-
-        Freetype.init();
-        {
-            FontFace fontFace = Freetype.newFontFace(new File("CascadiaCode.ttf"));
-            if (fontFace != null) {
+        try (final Freetype freetype = new Freetype()) {
+            try (FontFace fontFace = freetype.newFontFace(new File("CascadiaCode.ttf"))) {
                 fontFace.setPixelSizes(0, 1024);
                 for (int i = 'A'; i <= 'Z'; i++) {
-                    System.out.println("Creating a glyph for '" + (char) i + "'");
-                    BufferedImage image = createGlyph(fontFace, (char) i);
-                    try {
-                        ImageIO.write(image, "PNG", new File(directory, (char) i + ".png"));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    ImageIO.write(
+                            createGlyph(fontFace, (char) i),
+                            "PNG",
+                            new File(directory,
+                                    (char) i + ".png")
+                    );
                 }
-                if (!fontFace.free())
-                    throw new RuntimeException("Failed to free the FontFace");
-            } else {
-                throw new RuntimeException("Failed to create the FontFace");
+            } catch (FreetypeFaceException e) {
+                throw new RuntimeException(e);
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        if (!Freetype.free())
-            throw new RuntimeException("Failed to free the Freetype library");
     }
 
     /**
@@ -53,8 +49,8 @@ public class GlyphGenerationTest {
      * @return {@link BufferedImage}
      */
 
-    static BufferedImage createGlyph(FontFace fontFace, char charCode) {
-        assert fontFace.loadChar(charCode, Freetype.FT_LOAD_RENDER);
+    static BufferedImage createGlyph(FontFace fontFace, char charCode) throws FreetypeGlyphException {
+        fontFace.loadChar(charCode, Freetype.FT_LOAD_RENDER);
 
         GlyphSlot glyphSlot = fontFace.getGlyphSlot();
         assert glyphSlot != null;

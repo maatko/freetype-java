@@ -1,7 +1,10 @@
 package me.mat.freetype;
 
+import lombok.Getter;
 import me.mat.freetype.font.FontFace;
+import me.mat.freetype.font.FreetypeFaceException;
 import me.mat.freetype.util.MemoryUtil;
+import me.mat.freetype.util.NativeImplementation;
 import me.mat.freetype.util.OperatingSystem;
 
 import java.io.ByteArrayOutputStream;
@@ -13,26 +16,23 @@ import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
-public class Freetype implements FreetypeFlags {
-
-    // version of the native freetype library
-    private static final FreetypeVersion FREETYPE_VERSION = new FreetypeVersion(0, 0, 0);
+public class Freetype extends NativeImplementation implements FreetypeFlags, AutoCloseable {
 
     // version of the library itself
     private static final float VERSION = 1.0f;
 
-    private static long address;
+    @Getter
+    private final FreetypeVersion version;
 
-    /**
-     * Initializes the Freetype library
-     */
+    public Freetype() throws FreetypeException {
+        super(FT_Init_FreeType());
 
-    public static void init() {
-        address = FT_Init_FreeType();
-        if (address == -1)
-            throw new RuntimeException("Failed to initialize the Freetype library");
+        if (address < 0)
+            throw FreetypeException.create("Failed to initialize the Freetype library", address);
 
-        final FreetypeVersion version = getFreetypeVersion();
+        this.version = new FreetypeVersion(0, 0, 0);
+        FT_Library_Version(address, this.version);
+
         System.out.println("|------------------------------|");
         System.out.println("|   FreeType Native Library    |");
         System.out.println("|------------------------------|");
@@ -42,15 +42,25 @@ public class Freetype implements FreetypeFlags {
         System.out.println("|------------------------------");
     }
 
+    @Override
+    public void close() throws Exception {
+        long error_code = FT_Done_FreeType(address);
+        if (error_code < 0) {
+            throw FreetypeException.create("Failed to free the Freetype library", error_code);
+        }
+    }
+
     /**
      * Creates a new {@link FontFace} object from
      * the provided {@link InputStream}
      *
      * @param inputStream {@link File} file that you want to create the {@link FontFace} from
      * @return {@link FontFace}
+     * @throws FreetypeFaceException occurs when something goes wrong with the creation of the {@link FontFace}
+     * @throws IOException           occurs when something goes wrong with the creation of the {@link FontFace}
      */
 
-    public static FontFace newFontFace(InputStream inputStream) {
+    public FontFace newFontFace(InputStream inputStream) throws FreetypeFaceException, IOException {
         return newFontFace(inputStream, 0);
     }
 
@@ -61,21 +71,19 @@ public class Freetype implements FreetypeFlags {
      * @param inputStream {@link File} file that you want to create the {@link FontFace} from
      * @param faceIndex   {@link Integer} index of the face
      * @return {@link FontFace}
+     * @throws FreetypeFaceException occurs when something goes wrong with the creation of the {@link FontFace}
+     * @throws IOException           occurs when something goes wrong with the creation of the {@link FontFace}
      */
 
-    public static FontFace newFontFace(InputStream inputStream, int faceIndex) {
-        try {
-            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            int nRead;
-            byte[] data = new byte[1024];
-            while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
-                buffer.write(data, 0, nRead);
-            }
-            buffer.flush();
-            return newFontFace(buffer.toByteArray(), faceIndex);
-        } catch (IOException e) {
-            return null;
+    public FontFace newFontFace(InputStream inputStream, int faceIndex) throws FreetypeFaceException, IOException {
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        int nRead;
+        byte[] data = new byte[1024];
+        while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, nRead);
         }
+        buffer.flush();
+        return newFontFace(buffer.toByteArray(), faceIndex);
     }
 
     /**
@@ -84,9 +92,11 @@ public class Freetype implements FreetypeFlags {
      *
      * @param file {@link File} file that you want to create the {@link FontFace} from
      * @return {@link FontFace}
+     * @throws FreetypeFaceException occurs when something goes wrong with the creation of the {@link FontFace}
+     * @throws IOException           occurs when something goes wrong with the creation of the {@link FontFace}
      */
 
-    public static FontFace newFontFace(File file) {
+    public FontFace newFontFace(File file) throws FreetypeFaceException, IOException {
         return newFontFace(file, 0);
     }
 
@@ -97,14 +107,14 @@ public class Freetype implements FreetypeFlags {
      * @param file      {@link File} file that you want to create the {@link FontFace} from
      * @param faceIndex {@link Integer} index of the face
      * @return {@link FontFace}
+     * @throws FreetypeFaceException occurs when something goes wrong with the creation of the {@link FontFace}
+     * @throws IOException           occurs when something goes wrong with the creation of the {@link FontFace}
      */
 
-    public static FontFace newFontFace(File file, int faceIndex) {
-        try {
-            return newFontFace(Files.readAllBytes(file.toPath()), faceIndex);
-        } catch (IOException e) {
-            return null;
-        }
+    public FontFace newFontFace(File file, int faceIndex) throws FreetypeFaceException, IOException {
+        if (!file.exists())
+            throw new FreetypeFaceException("'" + file.getAbsolutePath() + "' does not exist");
+        return newFontFace(Files.readAllBytes(file.toPath()), faceIndex);
     }
 
     /**
@@ -115,9 +125,11 @@ public class Freetype implements FreetypeFlags {
      * @param bytes     {@link Byte} array that you want to create the {@link FontFace} from
      * @param faceIndex {@link Integer} index of the face
      * @return {@link FontFace}
+     * @throws FreetypeFaceException occurs when something goes wrong with the creation of the {@link FontFace}
+     * @throws IOException           occurs when something goes wrong with the creation of the {@link FontFace}
      */
 
-    private static FontFace newFontFace(byte[] bytes, int faceIndex) {
+    private FontFace newFontFace(byte[] bytes, int faceIndex) throws FreetypeFaceException {
         ByteBuffer buffer = MemoryUtil.createBuffer(bytes.length);
         buffer.order(ByteOrder.nativeOrder());
         buffer.limit(buffer.position() + bytes.length);
@@ -134,47 +146,45 @@ public class Freetype implements FreetypeFlags {
      * @param buffer    {@link ByteBuffer} that you want to create the {@link FontFace} from
      * @param faceIndex {@link Integer} index of the face
      * @return {@link FontFace}
+     * @throws FreetypeFaceException occurs when something goes wrong with the creation of the {@link FontFace}
+     * @throws IOException           occurs when something goes wrong with the creation of the {@link FontFace}
      */
 
-    private static FontFace newFontFace(ByteBuffer buffer, int faceIndex) {
+    private FontFace newFontFace(ByteBuffer buffer, int faceIndex) throws FreetypeFaceException {
         long face = FT_New_Memory_Face(address, buffer, buffer.remaining(), faceIndex);
         if (face <= 0) {
             MemoryUtil.deleteBuffer(buffer);
-            return null;
+            throw FreetypeFaceException.create("Failed to create the FontFace", face);
         }
         return new FontFace(face, buffer);
     }
 
     /**
-     * Return the version of the FreeType library being used
+     * Retrieve the description of a valid FreeType error code.
+     * <br>
+     * FreeType has to be compiled with `FT_CONFIG_OPTION_ERROR_STRINGS` or
+     * `FT_DEBUG_LEVEL_ERROR` to get meaningful descriptions.
+     * 'error_string' will be `NULL` otherwise.
      *
-     * @return {@link FreetypeVersion}
+     * @param errorCode A valid FreeType error code.
+     * @return {@link String}
      */
 
-    public static FreetypeVersion getFreetypeVersion() {
-        FT_Library_Version(address, FREETYPE_VERSION);
-        return FREETYPE_VERSION;
-    }
-
-    /**
-     * Frees the Freetype library
-     *
-     * @return {@link Boolean}
-     */
-
-    public static boolean free() {
-        return FT_Done_FreeType(address);
+    public static String getErrorString(int errorCode) {
+        return FT_Error_String(errorCode);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
 
     static native long FT_Init_FreeType();
 
+    static native String FT_Error_String(int errorCode);
+
     static native void FT_Library_Version(long address, FreetypeVersion version);
 
     static native long FT_New_Memory_Face(long address, ByteBuffer buffer, int length, int faceIndex);
 
-    static native boolean FT_Done_FreeType(long address);
+    static native long FT_Done_FreeType(long address);
 
     static {
         final OperatingSystem operatingSystem = OperatingSystem.getSystem();
