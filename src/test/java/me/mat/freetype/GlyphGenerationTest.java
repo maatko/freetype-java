@@ -22,6 +22,7 @@ public class GlyphGenerationTest {
         }
         try (final Freetype freetype = new Freetype()) {
             try (FontFace fontFace = freetype.newFontFace(new File("CascadiaCode.ttf"))) {
+                fontFace.selectCharMap(FreetypeEncoding.FT_ENCODING_UNICODE);
                 fontFace.setPixelSizes(0, 1024);
                 for (int i = 'A'; i <= 'Z'; i++) {
                     ImageIO.write(
