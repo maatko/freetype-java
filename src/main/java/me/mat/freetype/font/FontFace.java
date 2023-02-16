@@ -22,6 +22,18 @@ public class FontFace extends NativeImplementation implements AutoCloseable {
     }
 
     /**
+     * Retrieve index of a given charmap.
+     *
+     * @param charMap A handle to a {@link FontCharMap}.
+     * @return The index into the array of character maps within the face to which
+     * `charmap` belongs.  If an error occurs, -1 is returned.
+     */
+
+    public int getCharMapIndex(FontCharMap charMap) {
+        return FT_Get_Charmap_Index(charMap.getAddress());
+    }
+
+    /**
      * Select a given charmap by its encoding tag
      *
      * @param encoding A handle to the selected {@link FreetypeEncoding}.
@@ -637,5 +649,7 @@ public class FontFace extends NativeImplementation implements AutoCloseable {
     static native long[] FT_Get_Transform(long address);
 
     static native long FT_Select_Charmap(long address, int encoding);
+
+    static native int FT_Get_Charmap_Index(long charMap);
 
 }
