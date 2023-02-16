@@ -452,3 +452,22 @@ jlong JNICALL Java_me_mat_freetype_font_FontFace_FT_1Set_1Charmap(JNIEnv *env, j
     FT_Error error_code = FT_Set_Charmap((FT_Face)address, (FT_CharMap) charmap);
     return error_code == 0 ? error_code : error_code * -1;
 }
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Set_Transform
+ * Signature: (JJJ)J
+ */
+void JNICALL Java_me_mat_freetype_font_FontFace_FT_1Set_1Transform(JNIEnv * env, jclass clazz, jlong address, jlong matrix, jlong delta) {
+    FT_Set_Transform((FT_Face)address, (FT_Matrix*)matrix, (FT_Vector*)delta);
+}
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Select_Charmap
+ * Signature: (JI)J
+ */
+jlong JNICALL Java_me_mat_freetype_font_FontFace_FT_1Select_1Charmap(JNIEnv *env, jclass clazz, jlong address, jint encoding) {
+    FT_Error error_code = FT_Select_Charmap((FT_Face)address, *((FT_Encoding*)encoding));
+    return error_code == 0 ? error_code : error_code * -1;
+}

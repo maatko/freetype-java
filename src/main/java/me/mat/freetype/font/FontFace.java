@@ -1,5 +1,6 @@
 package me.mat.freetype.font;
 
+import me.mat.freetype.FreetypeEncoding;
 import me.mat.freetype.FreetypeException;
 import me.mat.freetype.bitmap.BitmapSize;
 import me.mat.freetype.glyph.FreetypeGlyphException;
@@ -18,6 +19,33 @@ public class FontFace extends NativeImplementation implements AutoCloseable {
         long error_code = FT_Done_Face(address);
         if (error_code < 0)
             throw FreetypeException.create("Failed to free the FontFace", error_code);
+    }
+
+    /**
+     * Select a given charmap by its encoding tag
+     *
+     * @param encoding A handle to the selected {@link FreetypeEncoding}.
+     * @throws FreetypeException occurs when something goes wrong with executing the method
+     */
+
+    public void selectCharMap(FreetypeEncoding encoding) throws FreetypeException {
+        long error_code = FT_Select_Charmap(this.address, encoding.get());
+        if (error_code < 0)
+            throw FreetypeException.create("Failed to execute FT_Select_Charmap", error_code);
+    }
+
+    /**
+     * Set the transformation that is applied to glyph images when they are
+     * loaded into a glyph slot through FT_Load_Glyph.
+     *
+     * @param matrix A pointer to the transformation's 2x2 matrix.  Use `NULL` for the
+     *               identity matrix.
+     * @param delta  A pointer to the translation vector.  Use `NULL` for the null
+     *               vector.
+     */
+
+    public void setTransform(FontMatrix matrix, FontVector delta) {
+        FT_Set_Transform(address, matrix.getAddress(), delta.getAddress());
     }
 
     /**
@@ -586,6 +614,10 @@ public class FontFace extends NativeImplementation implements AutoCloseable {
 
     static native long FT_Set_Char_Size(long address, long charWidth, long charHeight, long horizontalResolution, long verticalResolution);
 
-    static native long FT_Set_Charmap(long address, long charMapAddress);
+    static native long FT_Set_Charmap(long address, long charMap);
+
+    static native void FT_Set_Transform(long address, long matrix, long delta);
+
+    static native long FT_Select_Charmap(long address, int encoding);
 
 }
