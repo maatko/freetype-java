@@ -21,6 +21,22 @@ public class FontFace extends NativeImplementation implements AutoCloseable {
     }
 
     /**
+     * Call FT_Request_Size to request the nominal size (in points).
+     *
+     * @param charWidth            The nominal width, in 26.6 fractional points.
+     * @param charHeight           The nominal height, in 26.6 fractional points.
+     * @param horizontalResolution The horizontal resolution in dpi.
+     * @param verticalResolution   The vertical resolution in dpi.
+     * @throws FreetypeException occurs when something goes wrong with executing the method
+     */
+
+    public void serCharSize(long charWidth, long charHeight, long horizontalResolution, long verticalResolution) throws FreetypeException {
+        long error_code = FT_Set_Char_Size(address, charWidth, charHeight, horizontalResolution, verticalResolution);
+        if (error_code < 0)
+            throw FreetypeException.create("Failed to execute FT_Set_Char_Size", error_code);
+    }
+
+    /**
      * Select a bitmap strike.  To be more precise, this function sets the
      * scaling factors of the active @FT_Size object in a face so that
      * bitmaps from this particular strike are taken by @FT_Load_Glyph and
@@ -554,5 +570,7 @@ public class FontFace extends NativeImplementation implements AutoCloseable {
     static native long FT_Set_Pixel_Sizes(long address, long pixelWidth, long pixelHeight);
 
     static native long FT_Select_Size(long address, int strikeIndex);
+
+    static native long FT_Set_Char_Size(long address, long charWidth, long charHeight, long horizontalResolution, long verticalResolution);
 
 }
