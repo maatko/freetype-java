@@ -21,6 +21,19 @@ public class FontFace extends NativeImplementation implements AutoCloseable {
     }
 
     /**
+     * Select a given {@link FontCharMap} for character code to glyph index mapping.
+     *
+     * @param fontCharMap A handle to the selected {@link FontCharMap}.
+     * @throws FreetypeException occurs when something goes wrong with executing the method
+     */
+
+    public void setCharMap(FontCharMap fontCharMap) throws FreetypeException {
+        long error_code = FT_Set_Charmap(address, fontCharMap.getAddress());
+        if (error_code < 0)
+            throw FreetypeException.create("Failed to execute FT_Set_Charmap", error_code);
+    }
+
+    /**
      * Call FT_Request_Size to request the nominal size (in points).
      *
      * @param charWidth            The nominal width, in 26.6 fractional points.
@@ -572,5 +585,7 @@ public class FontFace extends NativeImplementation implements AutoCloseable {
     static native long FT_Select_Size(long address, int strikeIndex);
 
     static native long FT_Set_Char_Size(long address, long charWidth, long charHeight, long horizontalResolution, long verticalResolution);
+
+    static native long FT_Set_Charmap(long address, long charMapAddress);
 
 }

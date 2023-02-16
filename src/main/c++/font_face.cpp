@@ -439,6 +439,16 @@ jlong JNICALL Java_me_mat_freetype_font_FontFace_FT_1Select_1Size(JNIEnv *env, j
  * Signature: (JJJJJ)J
  */
 jlong JNICALL Java_me_mat_freetype_font_FontFace_FT_1Set_1Char_1Size(JNIEnv * env, jclass clazz, jlong address, jlong char_width, jlong char_height, jlong horz_resolution, jlong vert_resolution) {
-    FT_Error error_code =FT_Set_Char_Size((FT_Face)address, char_width, char_height, horz_resolution, vert_resolution);
+    FT_Error error_code = FT_Set_Char_Size((FT_Face)address, char_width, char_height, horz_resolution, vert_resolution);
+    return error_code == 0 ? error_code : error_code * -1;
+}
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Set_Charmap
+ * Signature: (JJ)J
+ */
+jlong JNICALL Java_me_mat_freetype_font_FontFace_FT_1Set_1Charmap(JNIEnv *env, jclass clazz, jlong address, jlong charmap) {
+    FT_Error error_code = FT_Set_Charmap((FT_Face)address, (FT_CharMap) charmap);
     return error_code == 0 ? error_code : error_code * -1;
 }
