@@ -542,3 +542,15 @@ jlong JNICALL Java_me_mat_freetype_font_FontFace_FT_1Get_1Next_1Char(JNIEnv *env
     data[0] = (jlong)glyph_index;
     return char_index;
 }
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Get_Name_Index
+ * Signature: (JLjava/lang/String;)J
+ */
+jlong JNICALL Java_me_mat_freetype_font_FontFace_FT_1Get_1Name_1Index(JNIEnv *env, jclass clazz, jlong adress, jstring glyph_name) {
+    const char* name = env->GetStringUTFChars(glyph_name, nullptr);
+    jlong index = FT_Get_Name_Index((FT_Face)adress, name);
+    env->ReleaseStringUTFChars(glyph_name, name);
+    return index;
+}

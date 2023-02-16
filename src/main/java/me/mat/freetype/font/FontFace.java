@@ -7,8 +7,6 @@ import me.mat.freetype.glyph.FreetypeGlyphException;
 import me.mat.freetype.glyph.GlyphSlot;
 import me.mat.freetype.util.NativeImplementation;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 
 
@@ -23,6 +21,18 @@ public class FontFace extends NativeImplementation implements AutoCloseable {
         long error_code = FT_Done_Face(address);
         if (error_code < 0)
             throw FreetypeException.create("Failed to free the FontFace", error_code);
+    }
+
+    /**
+     * Return the glyph index of a given glyph name.  This only works
+     * for those faces where FT_HAS_GLYPH_NAMES returns true.
+     *
+     * @param glyphName The glyph name.
+     * @return {@link Long} The glyph index.  0~means 'undefined character code'.
+     */
+
+    public long getNameIndex(String glyphName) {
+        return FT_Get_Name_Index(address, glyphName);
     }
 
     /**
@@ -699,5 +709,7 @@ public class FontFace extends NativeImplementation implements AutoCloseable {
     static native long FT_Get_First_Char(long address, LongBuffer glyphIndex);
 
     static native long FT_Get_Next_Char(long address, long charCode, LongBuffer glyphIndex);
+
+    static native long FT_Get_Name_Index(long address, String glyphName);
 
 }
