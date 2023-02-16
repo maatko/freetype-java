@@ -18,7 +18,8 @@ import java.nio.file.StandardCopyOption;
 public class Freetype extends NativeImplementation implements FreetypeFlags, AutoCloseable {
 
     // version of the library itself
-    private static final float VERSION = 1.0f;
+    private static final String LIBRARY_NAME = "freetype-java";
+    private static final float LIBRARY_VERSION = 1.0f;
 
     private final MemoryStack stack;
 
@@ -187,29 +188,17 @@ public class Freetype extends NativeImplementation implements FreetypeFlags, Aut
 
     static {
         final OperatingSystem operatingSystem = OperatingSystem.getSystem();
-        final String libraryName = operatingSystem.getDynamicLibraryName("freetype-java-");
-        final File libraryFile;
-        try (final InputStream inputStream = Freetype.class.getResourceAsStream(libraryName)) {
-            if (inputStream == null) {
-                libraryFile = operatingSystem.getDynamicLibrary(
-                        new File("target"),
-                        "freetype-java-" + VERSION
-                );
-            } else {
-                libraryFile = operatingSystem.getDynamicLibrary(
-                        new File(System.getProperty("java.io.tmpdir")),
-                        "freetype-java-" + VERSION
-                );
-                Files.copy(
-                        inputStream,
-                        libraryFile.toPath(),
-                        StandardCopyOption.REPLACE_EXISTING
-                );
-            }
-            System.load(libraryFile.getAbsolutePath());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        final File libraryFile = FreetypeLoader.getLibraryFile(operatingSystem, LIBRARY_NAME, LIBRARY_VERSION);
+        try (final InputStream inputStream = FreetypeLoader.getLibraryStream(operatingSystem, LIBRARY_NAME, LIBRARY_VERSION)) {
+            Files.copy(
+                    inputStream,
+                    libraryFile.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING
+            );
+        } catch (IOException ignored) {
+            System.out.println("[INFO] Development environment dected");
         }
+        System.load(libraryFile.getAbsolutePath());
     }
 
 }
