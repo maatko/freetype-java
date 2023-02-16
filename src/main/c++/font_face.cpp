@@ -499,3 +499,12 @@ jlong JNICALL Java_me_mat_freetype_font_FontFace_FT_1Select_1Charmap(JNIEnv *env
 jint JNICALL Java_me_mat_freetype_font_FontFace_FT_1Get_1Charmap_1Index(JNIEnv *env, jclass clazz, jlong charmap) {
     return FT_Get_Charmap_Index((FT_CharMap)charmap);
 }
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Get_Char_Index
+ * Signature: (JJ)I
+ */
+jint JNICALL Java_me_mat_freetype_font_FontFace_FT_1Get_1Char_1Index(JNIEnv *env, jclass clazz, jlong address, jlong char_code) {
+    return FT_Get_Char_Index((FT_Face)address, char_code);
+}

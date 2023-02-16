@@ -22,10 +22,22 @@ public class FontFace extends NativeImplementation implements AutoCloseable {
     }
 
     /**
+     * Return the glyph index of a given character code.  This function uses
+     * the currently selected {@link FontCharMap} to do the mapping.
+     *
+     * @param charCode The character code.
+     * @return {@link Integer} The glyph index.  0~means 'undefined character code'.
+     */
+
+    public int getCharIndex(long charCode) {
+        return FT_Get_Char_Index(address, charCode);
+    }
+
+    /**
      * Retrieve index of a given charmap.
      *
      * @param charMap A handle to a {@link FontCharMap}.
-     * @return The index into the array of character maps within the face to which
+     * @return {@link Integer} The index into the array of character maps within the face to which
      * `charmap` belongs.  If an error occurs, -1 is returned.
      */
 
@@ -651,5 +663,7 @@ public class FontFace extends NativeImplementation implements AutoCloseable {
     static native long FT_Select_Charmap(long address, int encoding);
 
     static native int FT_Get_Charmap_Index(long charMap);
+
+    static native int FT_Get_Char_Index(long address, long charCode);
 
 }
