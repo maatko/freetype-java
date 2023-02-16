@@ -45,7 +45,7 @@ public class Freetype extends NativeImplementation implements FreetypeFlags, Aut
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws FreetypeException {
         // frees all the data that's on the stack
         stack.close();
 

@@ -7,6 +7,10 @@ import me.mat.freetype.glyph.FreetypeGlyphException;
 import me.mat.freetype.glyph.GlyphSlot;
 import me.mat.freetype.util.NativeImplementation;
 
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+
 
 public class FontFace extends NativeImplementation implements AutoCloseable {
 
@@ -19,6 +23,32 @@ public class FontFace extends NativeImplementation implements AutoCloseable {
         long error_code = FT_Done_Face(address);
         if (error_code < 0)
             throw FreetypeException.create("Failed to free the FontFace", error_code);
+    }
+
+    /**
+     * Return the next character code in the current {@link FontCharMap} of a given face
+     * following the value `char_code`, as well as the corresponding glyph
+     * index.
+     *
+     * @param charCode   The starting character code.
+     * @param glyphIndex Glyph index of next character code.  0~if charmap is empty.
+     * @return The charmap's next character code.
+     */
+
+    public long getNextChar(long charCode, LongBuffer glyphIndex) {
+        return FT_Get_Next_Char(address, charCode, glyphIndex);
+    }
+
+    /**
+     * Return the first character code in the current {@link FontCharMap} of a given
+     * face, together with its corresponding glyph index.
+     *
+     * @param glyphIndex Glyph index of first character code.  0~if {@link FontCharMap} is empty.
+     * @return {@link Long} The charmap's first character code.
+     */
+
+    public long getFirstChar(LongBuffer glyphIndex) {
+        return FT_Get_First_Char(address, glyphIndex);
     }
 
     /**
@@ -665,5 +695,9 @@ public class FontFace extends NativeImplementation implements AutoCloseable {
     static native int FT_Get_Charmap_Index(long charMap);
 
     static native int FT_Get_Char_Index(long address, long charCode);
+
+    static native long FT_Get_First_Char(long address, LongBuffer glyphIndex);
+
+    static native long FT_Get_Next_Char(long address, long charCode, LongBuffer glyphIndex);
 
 }

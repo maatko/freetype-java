@@ -7,8 +7,8 @@
  * Method:    FT_Allocate_MemoryStack
  * Signature: (J)Ljava/nio/ByteBuffer;
  */
-jobject JNICALL Java_me_mat_freetype_memory_MemoryStack_FT_1Allocate_1MemoryStack(JNIEnv *env, jclass clazz, jlong size) {
-    return env->NewDirectByteBuffer(malloc(size), size);
+jobject JNICALL Java_me_mat_freetype_memory_MemoryStack_FT_1Allocate_1MemoryStack(JNIEnv *env, jclass clazz, jlong size, jlong capacity) {
+    return env->NewDirectByteBuffer(malloc(size), capacity);
 }
 
 /*

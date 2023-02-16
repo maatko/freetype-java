@@ -508,3 +508,37 @@ jint JNICALL Java_me_mat_freetype_font_FontFace_FT_1Get_1Charmap_1Index(JNIEnv *
 jint JNICALL Java_me_mat_freetype_font_FontFace_FT_1Get_1Char_1Index(JNIEnv *env, jclass clazz, jlong address, jlong char_code) {
     return FT_Get_Char_Index((FT_Face)address, char_code);
 }
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Get_First_Char
+ * Signature: (JLjava/nio/IntBuffer;)J
+ */
+jlong JNICALL Java_me_mat_freetype_font_FontFace_FT_1Get_1First_1Char(JNIEnv *env, jclass clazz, jlong address, jobject buffer) {
+    jlong *data = (jlong*)env->GetDirectBufferAddress(buffer);
+    if (data == nullptr)
+        return -1;
+    
+    FT_UInt glyph_index;
+    jlong char_index = (jlong)FT_Get_First_Char((FT_Face)address, &glyph_index);
+
+    data[0] = (jlong)glyph_index;
+    return char_index;
+}
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Get_Next_Char
+ * Signature: (JJLjava/nio/IntBuffer;)J
+ */
+jlong JNICALL Java_me_mat_freetype_font_FontFace_FT_1Get_1Next_1Char(JNIEnv *env, jclass clazz, jlong address, jlong char_code, jobject buffer) {
+    jlong *data = (jlong*)env->GetDirectBufferAddress(buffer);
+    if (data == nullptr)
+        return -1;
+
+    FT_UInt glyph_index;
+    jlong char_index = (jlong)FT_Get_Next_Char((FT_Face)address, char_code, &glyph_index);
+
+    data[0] = (jlong)glyph_index;
+    return char_index;
+}

@@ -23,10 +23,10 @@ public class MemoryStack implements AutoCloseable {
 
     public ByteBuffer malloc(int capacity) {
         final long size = capacity * Byte.BYTES;
-        final ByteBuffer buffer = FT_Allocate_MemoryStack(size);
+        final ByteBuffer buffer = FT_Allocate_MemoryStack(size, capacity);
         if (buffer == null)
             throw new OutOfMemoryError("Failed to allocate " + size + " bytes of memory for the buffer");
-        return buffer;
+        return buffer.order(ByteOrder.nativeOrder());
     }
 
     /**
@@ -110,7 +110,7 @@ public class MemoryStack implements AutoCloseable {
 
     //////////////////////////////////////////////////////////////////////////////////////
 
-    static native ByteBuffer FT_Allocate_MemoryStack(long size);
+    static native ByteBuffer FT_Allocate_MemoryStack(long size, long capacity);
 
     static native void FT_Free_MemoryStack(Buffer buffer);
 
