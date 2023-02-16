@@ -1,8 +1,8 @@
 package me.mat.freetype.font;
 
-import me.mat.freetype.util.NativeImplementation;
+import me.mat.freetype.FreetypeImplementation;
 
-public class FontMatrix extends NativeImplementation {
+public class FontMatrix extends FreetypeImplementation {
 
     public FontMatrix(long address) {
         super(address);

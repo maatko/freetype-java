@@ -1,10 +1,11 @@
 package me.mat.freetype.bitmap;
 
-import me.mat.freetype.util.NativeImplementation;
+import me.mat.freetype.FreetypeImplementation;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
-public class Bitmap extends NativeImplementation {
+public class Bitmap extends FreetypeImplementation {
 
     public Bitmap(long address) {
         super(address);
@@ -40,7 +41,7 @@ public class Bitmap extends NativeImplementation {
      */
 
     public ByteBuffer getBuffer() {
-        return FT_Buffer_Bitmap(address);
+        return FT_Buffer_Bitmap(address).order(ByteOrder.nativeOrder());
     }
 
     /**

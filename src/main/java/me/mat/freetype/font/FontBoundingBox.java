@@ -1,8 +1,8 @@
 package me.mat.freetype.font;
 
-import me.mat.freetype.util.NativeImplementation;
+import me.mat.freetype.FreetypeImplementation;
 
-public class FontBoundingBox extends NativeImplementation {
+public class FontBoundingBox extends FreetypeImplementation {
 
     public FontBoundingBox(long address) {
         super(address);

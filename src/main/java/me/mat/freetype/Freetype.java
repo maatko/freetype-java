@@ -4,7 +4,6 @@ import lombok.Getter;
 import me.mat.freetype.font.FontFace;
 import me.mat.freetype.font.FreetypeFaceException;
 import me.mat.freetype.memory.MemoryStack;
-import me.mat.freetype.util.NativeImplementation;
 import me.mat.freetype.util.OperatingSystem;
 
 import java.io.ByteArrayOutputStream;
@@ -15,7 +14,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
-public class Freetype extends NativeImplementation implements FreetypeFlags, AutoCloseable {
+public class Freetype extends FreetypeImplementation implements FreetypeFlags, AutoCloseable {
 
     // version of the library itself
     private static final String LIBRARY_NAME = "freetype-java";

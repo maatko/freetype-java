@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.nio.ByteBuffer;
 
 public class GlyphGenerationTest {
 
@@ -26,10 +27,7 @@ public class GlyphGenerationTest {
                 fontFace.setPixelSizes(0, 1024);
                 for (int i = 'A'; i <= 'Z'; i++) {
                     ImageIO.write(
-                            createGlyph(fontFace,
-                                    (char) i,
-                                    Freetype.FT_LOAD_RENDER
-                            ),
+                            createGlyph(fontFace, (char) i),
                             "PNG",
                             new File(directory,
                                     (char) i + ".png")
@@ -52,8 +50,8 @@ public class GlyphGenerationTest {
      * @return {@link BufferedImage}
      */
 
-    static BufferedImage createGlyph(FontFace fontFace, char charCode, int flags) throws FreetypeGlyphException {
-        fontFace.loadChar(charCode, flags);
+    static BufferedImage createGlyph(FontFace fontFace, char charCode) throws FreetypeGlyphException {
+        fontFace.loadChar(charCode, Freetype.FT_LOAD_RENDER);
 
         GlyphSlot glyphSlot = fontFace.getGlyphSlot();
         assert glyphSlot != null;
@@ -63,12 +61,14 @@ public class GlyphGenerationTest {
         Bitmap bitmap = glyphSlot.getBitmap();
         assert bitmap != null;
 
+
         final int width = (int) bitmap.getWidth();
         final int height = (int) bitmap.getRows();
 
         final byte[] glyphBitmap = new byte[width * height];
-        bitmap.getBuffer().flip();
-        bitmap.getBuffer().get(glyphBitmap, 0, glyphBitmap.length);
+
+        final ByteBuffer buffer = bitmap.getBuffer();
+        buffer.get(glyphBitmap, 0, glyphBitmap.length);
 
         final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < height; y++) {

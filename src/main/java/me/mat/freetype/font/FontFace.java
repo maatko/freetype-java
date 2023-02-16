@@ -5,12 +5,12 @@ import me.mat.freetype.FreetypeException;
 import me.mat.freetype.bitmap.BitmapSize;
 import me.mat.freetype.glyph.FreetypeGlyphException;
 import me.mat.freetype.glyph.GlyphSlot;
-import me.mat.freetype.util.NativeImplementation;
+import me.mat.freetype.FreetypeImplementation;
 
 import java.nio.LongBuffer;
 
 
-public class FontFace extends NativeImplementation implements AutoCloseable {
+public class FontFace extends FreetypeImplementation implements AutoCloseable {
 
     public FontFace(long address) {
         super(address);

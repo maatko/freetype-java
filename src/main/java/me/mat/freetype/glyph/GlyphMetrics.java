@@ -1,8 +1,8 @@
 package me.mat.freetype.glyph;
 
-import me.mat.freetype.util.NativeImplementation;
+import me.mat.freetype.FreetypeImplementation;
 
-public class GlyphMetrics extends NativeImplementation {
+public class GlyphMetrics extends FreetypeImplementation {
 
     public GlyphMetrics(long address) {
         super(address);

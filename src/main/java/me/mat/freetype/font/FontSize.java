@@ -1,9 +1,9 @@
 package me.mat.freetype.font;
 
 import lombok.Getter;
-import me.mat.freetype.util.NativeImplementation;
+import me.mat.freetype.FreetypeImplementation;
 
-public class FontSize extends NativeImplementation {
+public class FontSize extends FreetypeImplementation {
 
     @Getter
     private final FontFace fontFace;

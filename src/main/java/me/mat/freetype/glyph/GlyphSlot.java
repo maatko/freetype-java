@@ -1,14 +1,13 @@
 package me.mat.freetype.glyph;
 
 import lombok.Getter;
-import me.mat.freetype.FreetypeException;
 import me.mat.freetype.FreetypeRenderMode;
 import me.mat.freetype.bitmap.Bitmap;
 import me.mat.freetype.font.FontFace;
 import me.mat.freetype.font.FontVector;
-import me.mat.freetype.util.NativeImplementation;
+import me.mat.freetype.FreetypeImplementation;
 
-public class GlyphSlot extends NativeImplementation {
+public class GlyphSlot extends FreetypeImplementation {
 
     @Getter
     private final FontFace fontFace;

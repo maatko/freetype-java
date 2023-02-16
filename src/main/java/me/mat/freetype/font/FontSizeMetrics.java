@@ -1,8 +1,8 @@
 package me.mat.freetype.font;
 
-import me.mat.freetype.util.NativeImplementation;
+import me.mat.freetype.FreetypeImplementation;
 
-public class FontSizeMetrics extends NativeImplementation {
+public class FontSizeMetrics extends FreetypeImplementation {
 
     public FontSizeMetrics(long address) {
         super(address);

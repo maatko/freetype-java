@@ -1,8 +1,8 @@
 package me.mat.freetype.font;
 
-import me.mat.freetype.util.NativeImplementation;
+import me.mat.freetype.FreetypeImplementation;
 
-public class FontVector extends NativeImplementation {
+public class FontVector extends FreetypeImplementation {
 
     public FontVector(long address) {
         super(address);
