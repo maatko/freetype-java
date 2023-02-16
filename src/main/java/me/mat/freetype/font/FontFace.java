@@ -34,6 +34,14 @@ public class FontFace extends NativeImplementation implements AutoCloseable {
             throw FreetypeException.create("Failed to execute FT_Select_Charmap", error_code);
     }
 
+    public FontTransform getTransform() {
+        long[] array = FT_Get_Transform(address);
+        return new FontTransform(
+                new FontMatrix(array[0]),
+                new FontVector(array[1])
+        );
+    }
+
     /**
      * Set the transformation that is applied to glyph images when they are
      * loaded into a glyph slot through FT_Load_Glyph.
@@ -617,6 +625,8 @@ public class FontFace extends NativeImplementation implements AutoCloseable {
     static native long FT_Set_Charmap(long address, long charMap);
 
     static native void FT_Set_Transform(long address, long matrix, long delta);
+
+    static native long[] FT_Get_Transform(long address);
 
     static native long FT_Select_Charmap(long address, int encoding);
 

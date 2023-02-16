@@ -464,6 +464,25 @@ void JNICALL Java_me_mat_freetype_font_FontFace_FT_1Set_1Transform(JNIEnv * env,
 
 /*
  * Class:     me_mat_freetype_font_FontFace
+ * Method:    FT_Get_Transform
+ * Signature: (J)[J
+ */
+jlongArray JNICALL Java_me_mat_freetype_font_FontFace_FT_1Get_1Transform(JNIEnv *env, jclass clazz, jlong address) {
+    FT_Matrix matrix;
+    FT_Vector delta;
+    FT_Get_Transform((FT_Face)address, &matrix, &delta);
+
+    jlong ptrArray[2];
+    ptrArray[0] = (jlong)&matrix;
+    ptrArray[1] = (jlong)&delta;
+
+    jlongArray array = env->NewLongArray(2);
+    env->SetLongArrayRegion(array, 0, 2, ptrArray);
+    return array;
+}
+
+/*
+ * Class:     me_mat_freetype_font_FontFace
  * Method:    FT_Select_Charmap
  * Signature: (JI)J
  */
