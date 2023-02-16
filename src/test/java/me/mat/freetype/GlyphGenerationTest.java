@@ -25,7 +25,10 @@ public class GlyphGenerationTest {
                 fontFace.setPixelSizes(0, 1024);
                 for (int i = 'A'; i <= 'Z'; i++) {
                     ImageIO.write(
-                            createGlyph(fontFace, (char) i),
+                            createGlyph(fontFace,
+                                    (char) i,
+                                    Freetype.FT_LOAD_RENDER
+                            ),
                             "PNG",
                             new File(directory,
                                     (char) i + ".png")
@@ -48,11 +51,13 @@ public class GlyphGenerationTest {
      * @return {@link BufferedImage}
      */
 
-    static BufferedImage createGlyph(FontFace fontFace, char charCode) throws FreetypeGlyphException {
-        fontFace.loadChar(charCode, Freetype.FT_LOAD_RENDER);
+    static BufferedImage createGlyph(FontFace fontFace, char charCode, int flags) throws FreetypeGlyphException {
+        fontFace.loadChar(charCode, flags);
 
         GlyphSlot glyphSlot = fontFace.getGlyphSlot();
         assert glyphSlot != null;
+
+        glyphSlot.renderGlyph(FreetypeRenderMode.FT_RENDER_MODE_NORMAL);
 
         Bitmap bitmap = glyphSlot.getBitmap();
         assert bitmap != null;
@@ -61,13 +66,14 @@ public class GlyphGenerationTest {
         final int height = (int) bitmap.getRows();
 
         final byte[] glyphBitmap = new byte[width * height];
+        bitmap.getBuffer().flip();
         bitmap.getBuffer().get(glyphBitmap, 0, glyphBitmap.length);
 
         final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                final int value = glyphBitmap[x + y * width] & 0xFF;
-                image.setRGB(x, y, (value << 24) | (value << 16) | (value << 8) | value);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                byte pixel = glyphBitmap[x + y * width];
+                image.setRGB(x, y, (pixel << 24) | (pixel << 16) | (pixel << 8) | pixel);
             }
         }
 

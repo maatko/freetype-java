@@ -177,11 +177,11 @@ public class Freetype extends NativeImplementation implements FreetypeFlags, Aut
 
     static native long FT_Init_FreeType();
 
+    static native long FT_New_Memory_Face(long address, ByteBuffer buffer, int length, int faceIndex);
+
     static native String FT_Error_String(int errorCode);
 
     static native void FT_Library_Version(long address, FreetypeVersion version);
-
-    static native long FT_New_Memory_Face(long address, ByteBuffer buffer, int length, int faceIndex);
 
     static native long FT_Done_FreeType(long address);
 

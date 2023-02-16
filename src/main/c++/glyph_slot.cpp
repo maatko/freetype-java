@@ -110,3 +110,13 @@ jint JNICALL Java_me_mat_freetype_glyph_GlyphSlot_FT_1Bitmap_1Top_1GlyphSlot(JNI
         return -1;
     return (jlong)slot->bitmap_top;
 }
+
+/*
+ * Class:     me_mat_freetype_glyph_GlyphSlot
+ * Method:    FT_Render_Glyph
+ * Signature: (JI)J
+ */
+jlong JNICALL Java_me_mat_freetype_glyph_GlyphSlot_FT_1Render_1Glyph(JNIEnv *env, jclass clazz, jlong address, jint render_mode) {
+    FT_Error error_code = FT_Render_Glyph((FT_GlyphSlot)address, (FT_Render_Mode)render_mode);
+    return error_code == 0 ? error_code : error_code * -1;
+}

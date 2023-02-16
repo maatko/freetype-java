@@ -1,6 +1,8 @@
 package me.mat.freetype.glyph;
 
 import lombok.Getter;
+import me.mat.freetype.FreetypeException;
+import me.mat.freetype.FreetypeRenderMode;
 import me.mat.freetype.bitmap.Bitmap;
 import me.mat.freetype.font.FontFace;
 import me.mat.freetype.font.FontVector;
@@ -15,6 +17,12 @@ public class GlyphSlot extends NativeImplementation {
         super(address);
 
         this.fontFace = fontFace;
+    }
+
+    public void renderGlyph(FreetypeRenderMode renderMode) throws FreetypeGlyphException {
+        long address = FT_Render_Glyph(this.address, renderMode.ordinal());
+        if (address < 0)
+            throw FreetypeGlyphException.create("Failed to render the Glyph", address);
     }
 
     /**
@@ -156,5 +164,7 @@ public class GlyphSlot extends NativeImplementation {
     static native int FT_Bitmap_Left_GlyphSlot(long address);
 
     static native int FT_Bitmap_Top_GlyphSlot(long address);
+
+    static native long FT_Render_Glyph(long address, int renderMode);
 
 }
